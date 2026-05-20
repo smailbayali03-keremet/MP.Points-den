@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0a0a" />
+<title>MPoints.Kz — Шеф Doner, Burger & Pizza | Шымкент</title>
+
+<meta name="description" content="MPoints.Kz — премиальная сеть быстрого питания в Шымкенте. Донеры, бургеры, пицца, шаурма. 6 филиалов. Доставка 24/7. Заказ через WhatsApp." />
+<meta name="keywords" content="MPoints, донер Шымкент, бургер Шымкент, шаурма, пицца, доставка еды Шымкент, фастфуд, быстрое питание" />
+<meta name="author" content="MPoints.Kz" />
+
+<meta property="og:type" content="restaurant" />
+<meta property="og:title" content="MPoints.Kz — Премиум фастфуд в Шымкенте" />
+<meta property="og:description" content="Самые сочные донеры, бургеры и пицца. 6 филиалов. Круглосуточно. Заказ через WhatsApp." />
+<meta property="og:locale" content="ru_KZ" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Unbounded:wght@500;700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23FF6A00'/><text x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' font-family='Arial' font-weight='900' font-size='16' fill='%23000'>M</text></svg>" />
+
+<style>
+:root{
+  --bg:#0a0a0a;
+  --bg-2:#111111;
+  --bg-3:#1a1a1a;
+  --surface:#161616;
+  --surface-2:#1f1f1f;
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.14);
+  --text:#f5f5f5;
+  --muted:#9a9a9a;
+  --dim:#6e6e6e;
+  --accent:#FF6A00;
+  --accent-2:#FF8A2B;
+  --accent-glow:rgba(255,106,0,.35);
+  --green:#25D366;
+  --green-2:#1ebd5a;
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 30px 80px -30px rgba(0,0,0,.6);
+  --container:1280px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.55;
+  font-weight:400;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+::selection{background:var(--accent);color:#000}
+
+/* ─── Container ─── */
+.container{max-width:var(--container);margin:0 auto;padding:0 24px}
+@media (max-width:640px){.container{padding:0 18px}}
+
+/* ─── Typography ─── */
+.display{font-family:'Unbounded',sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.02}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.18em;
+  color:var(--accent);
+  padding:8px 14px;
+  border:1px solid rgba(255,106,0,.3);
+  border-radius:999px;
+  background:rgba(255,106,0,.06);
+}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+
+.section-title{
+  font-family:'Unbounded',sans-serif;
+  font-weight:800;
+  font-size:clamp(32px,4.5vw,56px);
+  letter-spacing:-.02em;
+  line-height:1.05;
+  margin-top:14px;
+}
+.section-title span{color:inherit}
+.section-title .hl{color:var(--accent)}
+.section-sub{color:var(--muted);font-size:17px;max-width:600px;margin-top:14px}
+
+section{padding:120px 0;position:relative}
+@media (max-width:768px){section{padding:80px 0}}
+
+/* ─── Buttons ─── */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 26px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:15px;
+  transition:transform .25s ease,box-shadow .25s ease,background .25s ease;
+  white-space:nowrap;
+  will-change:transform;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{
+  background:var(--accent);
+  color:#000;
+  box-shadow:0 10px 30px -8px var(--accent-glow);
+}
+.btn-primary:hover{background:var(--accent-2);box-shadow:0 14px 40px -8px var(--accent-glow)}
+.btn-whatsapp{
+  background:linear-gradient(135deg,var(--green),var(--green-2));
+  color:#fff;
+  box-shadow:0 10px 30px -8px rgba(37,211,102,.4);
+}
+.btn-whatsapp:hover{box-shadow:0 14px 40px -8px rgba(37,211,102,.6)}
+.btn-ghost{
+  border:1px solid var(--line-2);
+  background:rgba(255,255,255,.02);
+  color:var(--text);
+  backdrop-filter:blur(10px);
+}
+.btn-ghost:hover{background:rgba(255,255,255,.06);border-color:var(--accent)}
+.btn svg{width:18px;height:18px}
+
+/* ─── Header / Nav ─── */
+.header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:16px 0;
+  transition:background .3s,backdrop-filter .3s,border-color .3s;
+  border-bottom:1px solid transparent;
+}
+.header.scrolled{
+  background:rgba(10,10,10,.78);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Unbounded',sans-serif;
+  font-weight:800;
+  font-size:20px;
+  letter-spacing:-.02em;
+}
+.logo-mark{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),#ff4d00);
+  display:grid;place-items:center;
+  color:#000;font-weight:900;font-size:18px;
+  box-shadow:0 8px 24px -6px var(--accent-glow);
+}
+.logo-text{display:flex;flex-direction:column;line-height:1}
+.logo-text small{font-family:'Manrope',sans-serif;font-size:10px;font-weight:500;color:var(--dim);letter-spacing:.2em;margin-top:3px;text-transform:uppercase}
+
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-links a{
+  padding:10px 16px;font-size:14px;font-weight:500;color:var(--muted);
+  border-radius:999px;transition:color .2s,background .2s;
+}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.nav-cta .btn{padding:12px 20px;font-size:14px}
+
+/* Language switcher */
+.lang-switch{
+  display:flex;align-items:center;gap:0;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:3px;
+  margin-right:8px;
+}
+.lang-switch button{
+  padding:6px 11px;font-size:11px;font-weight:700;
+  border-radius:999px;color:var(--muted);
+  transition:all .2s;
+  letter-spacing:.05em;
+  font-family:'Manrope',sans-serif;
+}
+.lang-switch button.active{
+  background:var(--accent);color:#000;
+  box-shadow:0 4px 12px -2px var(--accent-glow);
+}
+.lang-switch button:hover:not(.active){color:var(--text)}
+@media (max-width:960px){
+  .lang-switch{
+    margin:0;padding:4px;
+  }
+  .lang-switch button{padding:6px 10px;font-size:11px}
+}
+
+.burger{display:none;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.06);align-items:center;justify-content:center}
+.burger span{display:block;width:18px;height:2px;background:var(--text);position:relative}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;width:18px;height:2px;background:var(--text);transition:transform .3s}
+.burger span::before{top:-6px}
+.burger span::after{top:6px}
+.burger.active span{background:transparent}
+.burger.active span::before{transform:translateY(6px) rotate(45deg)}
+.burger.active span::after{transform:translateY(-6px) rotate(-45deg)}
+
+@media (max-width:960px){
+  .nav-links,.nav-cta .btn-ghost{display:none}
+  .burger{display:flex}
+}
+
+/* Mobile menu */
+.mobile-menu{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(10,10,10,.97);
+  backdrop-filter:blur(20px);
+  z-index:99;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:18px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.mobile-menu.active{opacity:1;pointer-events:auto}
+.mobile-menu a{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:600;color:var(--text)}
+.mobile-menu a:hover{color:var(--accent)}
+
+/* ─── Hero ─── */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  position:relative;
+  padding-top:120px;padding-bottom:80px;
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 80% 20%, rgba(255,106,0,.18), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 10% 90%, rgba(255,77,0,.12), transparent 60%);
+}
+.hero-noise{
+  position:absolute;inset:0;z-index:1;opacity:.4;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.hero-grid{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center;
+}
+@media (max-width:1024px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+
+.hero-content{max-width:640px}
+.hero-rating{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-bottom:24px;padding:8px 14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:999px;font-size:13px;
+}
+.hero-rating .stars{color:#FFD700;letter-spacing:1px;font-size:14px}
+.hero-rating b{color:var(--text);font-weight:700}
+.hero-rating span{color:var(--muted)}
+
+.hero h1{
+  font-family:'Unbounded',sans-serif;
+  font-weight:900;
+  font-size:clamp(40px,7vw,84px);
+  letter-spacing:-.035em;line-height:.96;
+}
+.hero h1 .accent{
+  color:transparent;
+  -webkit-text-stroke:2px var(--accent);
+  background:linear-gradient(180deg,var(--accent),#ff4d00);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero p.lead{
+  margin-top:24px;font-size:18px;color:var(--muted);max-width:540px;line-height:1.6;
+}
+.hero-cta{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap}
+
+.hero-stats{
+  display:flex;gap:32px;margin-top:48px;padding-top:32px;
+  border-top:1px solid var(--line);
+}
+.stat b{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:800;display:block;color:var(--text)}
+.stat span{font-size:13px;color:var(--muted);margin-top:2px;display:block}
+
+/* Hero visual */
+.hero-visual{
+  position:relative;height:540px;
+  display:grid;place-items:center;
+}
+@media (max-width:1024px){.hero-visual{height:420px}}
+@media (max-width:560px){.hero-visual{height:360px}}
+
+.hero-card{
+  position:relative;
+  width:100%;max-width:480px;
+  aspect-ratio:1;
+  border-radius:32px;
+  background:#0a0a0a;
+  border:1px solid var(--line-2);
+  box-shadow:0 60px 120px -40px rgba(0,0,0,.8),0 0 80px -20px var(--accent-glow);
+  overflow:hidden;
+  display:grid;place-items:center;
+}
+.hero-card-img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  animation:zoom-pulse 8s ease-in-out infinite;
+}
+.hero-card::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,106,0,.25), transparent 60%),
+    linear-gradient(180deg,transparent 40%,rgba(0,0,0,.6));
+  pointer-events:none;
+}
+@keyframes zoom-pulse{
+  0%,100%{transform:scale(1.05)}
+  50%{transform:scale(1.15)}
+}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(-4deg)}
+  50%{transform:translateY(-20px) rotate(4deg)}
+}
+
+.float-tag{
+  position:absolute;
+  background:rgba(20,20,20,.85);
+  backdrop-filter:blur(14px);
+  border:1px solid var(--line-2);
+  border-radius:18px;
+  padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 20px 40px -10px rgba(0,0,0,.5);
+  animation:float-tag 6s ease-in-out infinite;
+}
+@keyframes float-tag{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-12px)}
+}
+.float-tag-icon{
+  width:42px;height:42px;border-radius:12px;
+  background:rgba(255,106,0,.15);
+  display:grid;place-items:center;color:var(--accent);
+  font-size:22px;
+}
+.float-tag b{display:block;font-size:14px;color:var(--text);font-weight:700}
+.float-tag span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+
+.tag-1{top:8%;left:-4%;animation-delay:-1s}
+.tag-2{bottom:18%;right:-6%;animation-delay:-3s}
+.tag-3{bottom:4%;left:8%;animation-delay:-5s}
+@media (max-width:560px){
+  .tag-1{top:2%;left:-2%}
+  .tag-2{right:-2%}
+  .tag-3{display:none}
+}
+
+/* ─── Marquee ─── */
+.marquee{
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:24px 0;overflow:hidden;
+  background:rgba(255,255,255,.01);
+}
+.marquee-track{
+  display:flex;gap:60px;
+  animation:scroll 30s linear infinite;
+  white-space:nowrap;
+  width:max-content;
+}
+.marquee-item{
+  display:flex;align-items:center;gap:14px;
+  font-family:'Unbounded',sans-serif;font-weight:700;
+  font-size:24px;color:var(--text);
+}
+.marquee-item svg{color:var(--accent);width:18px;height:18px}
+@keyframes scroll{
+  to{transform:translateX(-50%)}
+}
+
+/* ─── Menu Section ─── */
+.section-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:30px;
+  flex-wrap:wrap;margin-bottom:50px;
+}
+.section-head-left{max-width:640px}
+
+.menu-tabs{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:36px;
+  padding-bottom:0;
+}
+.menu-tab{
+  padding:10px 18px;font-size:14px;font-weight:600;
+  border:1px solid var(--line);border-radius:999px;
+  background:transparent;color:var(--muted);
+  transition:all .2s;
+}
+.menu-tab:hover{color:var(--text);border-color:var(--line-2)}
+.menu-tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+
+.menu-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+}
+@media (max-width:1024px){.menu-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:768px){.menu-grid{grid-template-columns:repeat(2,1fr);gap:16px}}
+@media (max-width:480px){.menu-grid{grid-template-columns:1fr 1fr}}
+
+.product-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:transform .3s,border-color .3s,box-shadow .3s;
+  display:flex;flex-direction:column;
+  position:relative;
+}
+.product-card:hover{
+  transform:translateY(-6px);
+  border-color:rgba(255,106,0,.4);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.6),0 0 30px -10px var(--accent-glow);
+}
+
+.product-badge{
+  position:absolute;top:14px;left:14px;z-index:2;
+  background:var(--accent);color:#000;
+  padding:5px 11px;border-radius:999px;
+  font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+}
+.product-badge.new{background:#fff;color:#000}
+
+.product-img{
+  aspect-ratio:1.2/1;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#222,#0e0e0e);
+}
+.product-img img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  transition:transform .5s ease;
+}
+.product-card:hover .product-img img{transform:scale(1.08)}
+.product-img::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.5));
+  pointer-events:none;
+}
+
+.product-body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1;gap:8px}
+.product-cat{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.product-name{font-weight:700;font-size:16px;line-height:1.3;color:var(--text);min-height:42px}
+.product-meta{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px}
+.product-price{font-family:'Unbounded',sans-serif;font-weight:700;font-size:18px;color:var(--text)}
+.product-price small{font-size:12px;color:var(--muted);font-weight:500;margin-left:2px}
+
+.btn-order-mini{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--accent);color:#000;
+  display:grid;place-items:center;
+  transition:transform .2s,background .2s;
+}
+.btn-order-mini:hover{background:var(--accent-2);transform:rotate(45deg)}
+.btn-order-mini svg{width:16px;height:16px}
+
+.menu-cta{text-align:center;margin-top:50px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* ─── Branches ─── */
+.branches{background:linear-gradient(180deg,transparent,rgba(255,106,0,.03),transparent)}
+
+.branches-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+}
+@media (max-width:980px){.branches-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.branches-grid{grid-template-columns:1fr}}
+
+.branch-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:26px;
+  transition:border-color .3s,transform .3s,box-shadow .3s;
+  position:relative;
+  overflow:hidden;
+}
+.branch-card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.branch-card:hover{
+  border-color:rgba(255,106,0,.3);
+  transform:translateY(-4px);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.5);
+}
+.branch-card:hover::before{opacity:1}
+
+.branch-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.branch-num{
+  font-family:'Unbounded',sans-serif;font-weight:800;font-size:14px;
+  color:var(--accent);letter-spacing:.05em;
+}
+.branch-status{
+  font-size:12px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 10px;border-radius:999px;
+  background:rgba(37,211,102,.12);color:var(--green);
+}
+.branch-status::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+
+.branch-name{font-family:'Unbounded',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.01em;margin-bottom:6px}
+.branch-area{font-size:14px;color:var(--accent);margin-bottom:18px;font-weight:600}
+
+.branch-info{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
+.branch-info-row{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--muted);line-height:1.4}
+.branch-info-row svg{width:18px;height:18px;color:var(--accent);flex-shrink:0;margin-top:2px}
+
+.branch-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.branch-actions .btn{padding:12px 14px;font-size:13px;width:100%;justify-content:center}
+
+/* ─── Delivery ─── */
+.delivery-grid{
+  display:grid;grid-template-columns:1.2fr .8fr;gap:50px;align-items:center;
+}
+@media (max-width:980px){.delivery-grid{grid-template-columns:1fr}}
+
+.delivery-features{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:40px;
+}
+@media (max-width:520px){.delivery-features{grid-template-columns:1fr}}
+
+.feature{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:22px;
+  display:flex;flex-direction:column;gap:8px;
+  transition:border-color .3s,transform .3s;
+}
+.feature:hover{border-color:rgba(255,106,0,.3);transform:translateY(-3px)}
+.feature-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:rgba(255,106,0,.12);color:var(--accent);
+  display:grid;place-items:center;margin-bottom:6px;
+  font-size:22px;
+}
+.feature h4{font-weight:700;font-size:17px}
+.feature p{color:var(--muted);font-size:14px;line-height:1.5}
+
+.delivery-visual{
+  position:relative;aspect-ratio:1;
+  background:#0a0a0a;
+  border:1px solid var(--line);
+  border-radius:32px;
+  overflow:hidden;
+}
+.delivery-visual img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+}
+.delivery-visual::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,106,0,.18), transparent 60%),
+    linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.6));
+  pointer-events:none;
+}
+
+.delivery-zones{
+  position:absolute;top:24px;left:24px;
+  background:rgba(20,20,20,.85);
+  backdrop-filter:blur(14px);
+  border:1px solid var(--line-2);
+  border-radius:14px;
+  padding:14px 18px;
+  font-size:13px;font-weight:600;
+}
+.delivery-zones b{display:block;font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.1em;margin-bottom:6px}
+
+.delivery-time{
+  position:absolute;bottom:24px;right:24px;
+  background:var(--accent);color:#000;
+  border-radius:14px;
+  padding:14px 18px;
+  font-weight:800;
+  box-shadow:0 20px 40px -10px var(--accent-glow);
+}
+.delivery-time b{display:block;font-family:'Unbounded',sans-serif;font-size:24px;line-height:1}
+.delivery-time span{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+
+/* ─── Social ─── */
+.social-grid{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:50px;
+}
+@media (max-width:980px){.social-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.social-grid{grid-template-columns:repeat(2,1fr)}}
+
+.social-card{
+  aspect-ratio:1;
+  border-radius:var(--radius-sm);
+  background:#0e0e0e;
+  border:1px solid var(--line);
+  overflow:hidden;
+  position:relative;
+  transition:transform .3s,border-color .3s;
+  cursor:pointer;
+  display:block;
+}
+.social-card img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  transition:transform .5s ease;
+}
+.social-card:hover{transform:scale(1.04);border-color:var(--accent);z-index:2}
+.social-card:hover img{transform:scale(1.1)}
+.social-card::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.7));
+  pointer-events:none;
+}
+.social-card-overlay{
+  position:absolute;inset:auto 0 0 0;
+  padding:10px 14px;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.85));
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;font-weight:600;
+  opacity:0;transition:opacity .3s;
+}
+.social-card:hover .social-card-overlay{opacity:1}
+.social-card-overlay svg{width:14px;height:14px;color:var(--accent)}
+
+.social-stats{display:flex;gap:32px;flex-wrap:wrap;margin-top:24px}
+.social-stat b{font-family:'Unbounded',sans-serif;font-size:22px;color:var(--text)}
+.social-stat span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+
+/* ─── Reviews ─── */
+.reviews-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+}
+@media (max-width:900px){.reviews-grid{grid-template-columns:1fr;max-width:560px;margin:0 auto}}
+
+/* Reviews marquee (sliding) — clean cut, no fade */
+.reviews-marquee{
+  position:relative;
+  margin-bottom:0;
+}
+.reviews-row{
+  overflow:hidden;
+  margin-bottom:22px;
+}
+.reviews-row:last-child{margin-bottom:0}
+.reviews-track{
+  display:flex;
+  gap:22px;
+  width:max-content;
+  animation:scroll-rev-left 90s linear infinite;
+  will-change:transform;
+}
+.reviews-row-right .reviews-track{
+  animation:scroll-rev-right 90s linear infinite;
+}
+.reviews-marquee:hover .reviews-track{
+  animation-play-state:paused;
+}
+@keyframes scroll-rev-left{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+@keyframes scroll-rev-right{
+  from{transform:translateX(-50%)}
+  to{transform:translateX(0)}
+}
+.reviews-marquee .review-card{
+  width:380px;
+  flex-shrink:0;
+}
+@media (max-width:768px){
+  .reviews-marquee .review-card{width:300px;padding:22px}
+  .reviews-track{animation-duration:70s}
+}
+
+.review-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:28px;
+  display:flex;flex-direction:column;gap:18px;
+  transition:transform .3s,border-color .3s;
+}
+.review-card:hover{transform:translateY(-4px);border-color:rgba(255,106,0,.3)}
+
+.review-stars{color:#FFD700;letter-spacing:2px;font-size:16px}
+.review-text{font-size:15px;color:#cfcfcf;line-height:1.7;flex:1}
+.review-author{display:flex;align-items:center;gap:14px;padding-top:18px;border-top:1px solid var(--line)}
+.review-avatar{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#ff4d00);
+  color:#000;font-weight:800;display:grid;place-items:center;
+  font-family:'Unbounded',sans-serif;
+}
+.review-author b{display:block;font-size:15px;font-weight:700}
+.review-author span{font-size:13px;color:var(--muted)}
+
+.reviews-summary{
+  display:flex;align-items:center;gap:24px;
+  margin-top:50px;padding:28px;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);
+  flex-wrap:wrap;justify-content:center;
+}
+.review-score{font-family:'Unbounded',sans-serif;font-size:64px;font-weight:800;line-height:1;color:var(--accent)}
+.review-score-label .stars{color:#FFD700;font-size:18px;letter-spacing:2px;display:block;margin-bottom:4px}
+.review-score-label b{display:block;font-size:16px}
+.review-score-label span{color:var(--muted);font-size:14px}
+
+/* ─── QR Section ─── */
+.qr-wrap{
+  background:linear-gradient(135deg,#1a1a1a,#0a0a0a);
+  border:1px solid var(--line);
+  border-radius:32px;
+  padding:60px;
+  position:relative;overflow:hidden;
+}
+.qr-wrap::before{
+  content:"";position:absolute;top:-100px;right:-100px;
+  width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle, rgba(255,106,0,.2), transparent 70%);
+}
+@media (max-width:768px){.qr-wrap{padding:36px}}
+
+.qr-grid{
+  display:grid;grid-template-columns:1fr 280px;gap:50px;align-items:center;
+  position:relative;z-index:1;
+}
+@media (max-width:768px){.qr-grid{grid-template-columns:1fr;gap:30px}}
+
+.qr-card{
+  width:280px;aspect-ratio:1;
+  background:#fff;border-radius:24px;
+  padding:18px;display:grid;place-items:center;
+  position:relative;
+  box-shadow:0 30px 80px -20px rgba(255,106,0,.4);
+  text-decoration:none;
+  transition:transform .3s,box-shadow .3s;
+}
+.qr-card:hover{transform:scale(1.04);box-shadow:0 40px 100px -20px rgba(255,106,0,.55)}
+.qr-card img{
+  width:100%;height:100%;border-radius:8px;display:block;
+  image-rendering:pixelated;
+}
+.qr-card::after{
+  content:"M";position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:54px;height:54px;border-radius:12px;
+  background:var(--accent);color:#000;
+  display:grid;place-items:center;
+  font-family:'Unbounded',sans-serif;font-weight:800;font-size:26px;
+  border:5px solid #fff;
+  z-index:2;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+.qr-pattern{
+  width:100%;height:100%;
+  background-image:
+    radial-gradient(circle at 12% 12%, #000 4%, transparent 4%),
+    radial-gradient(circle at 12% 88%, #000 4%, transparent 4%),
+    radial-gradient(circle at 88% 12%, #000 4%, transparent 4%);
+  background-size:30% 30%;background-repeat:no-repeat;
+  position:relative;
+}
+.qr-pattern::before{
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(0deg,#000 0,#000 4%,transparent 4%,transparent 8%),
+    repeating-linear-gradient(90deg,#000 0,#000 4%,transparent 4%,transparent 8%);
+  mask:radial-gradient(circle at center, transparent 14%, #000 14%);
+  -webkit-mask:radial-gradient(circle at center, transparent 14%, #000 14%);
+  opacity:.7;
+}
+
+.qr-steps{display:flex;flex-direction:column;gap:14px;margin-top:30px}
+.qr-step{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+.qr-step-num{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--accent);color:#000;
+  font-weight:800;display:grid;place-items:center;
+  flex-shrink:0;font-family:'Unbounded',sans-serif;
+}
+.qr-step span{font-size:15px;font-weight:500}
+
+/* ─── Contact ─── */
+.contact-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;
+}
+@media (max-width:900px){.contact-grid{grid-template-columns:1fr}}
+
+.contact-list{display:flex;flex-direction:column;gap:14px}
+.contact-item{
+  display:flex;align-items:center;gap:18px;
+  padding:22px 24px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  transition:border-color .3s,transform .3s;
+}
+.contact-item:hover{border-color:rgba(255,106,0,.3);transform:translateX(4px)}
+.contact-icon{
+  width:54px;height:54px;border-radius:14px;
+  background:rgba(255,106,0,.12);color:var(--accent);
+  display:grid;place-items:center;flex-shrink:0;
+}
+.contact-icon svg{width:24px;height:24px}
+.contact-text{flex:1;min-width:0}
+.contact-text small{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px}
+.contact-text b{display:block;font-size:17px;font-weight:700;word-break:break-word}
+
+.map-wrap{
+  position:relative;aspect-ratio:1;width:100%;
+  border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--line);
+  background:#1a1a1a;
+}
+.map-wrap iframe{width:100%;height:100%;border:0;filter:grayscale(.3) brightness(.85) invert(.92) hue-rotate(180deg)}
+
+/* 2GIS CTA on map */
+.map-cta{
+  position:absolute;top:14px;left:14px;right:14px;z-index:1000;
+  display:flex;align-items:center;gap:12px;
+  background:rgba(15,15,15,.85);backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;padding:11px 14px;
+  box-shadow:0 14px 40px -10px rgba(0,0,0,.6);
+}
+.map-cta-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,#19B14B,#0d8a36);
+  display:grid;place-items:center;flex-shrink:0;
+  font-weight:900;color:#fff;font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:.05em;
+}
+.map-cta-text{flex:1;min-width:0;line-height:1.25}
+.map-cta-text b{display:block;font-size:13px;font-weight:700;color:#fff}
+.map-cta-text span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.map-cta-btn{
+  background:var(--accent);color:#000;
+  padding:9px 14px;border-radius:10px;font-weight:800;font-size:12px;
+  display:inline-flex;align-items:center;gap:6px;
+  text-decoration:none;flex-shrink:0;
+  transition:transform .2s,background .2s;
+}
+.map-cta-btn:hover{background:var(--accent-2);transform:translateY(-2px)}
+.map-cta-btn svg{width:13px;height:13px}
+@media (max-width:480px){
+  .map-cta{padding:9px 10px;gap:8px}
+  .map-cta-text b{font-size:12px}
+  .map-cta-text span{font-size:10px}
+  .map-cta-btn{padding:7px 10px;font-size:11px}
+}
+#map{width:100%;height:100%;z-index:1;background:#0a0a0a}
+.leaflet-container{background:#1a1a1a;font-family:'Manrope',sans-serif}
+/* Rich dark theme via CSS filter — shows all OSM detail (buildings, parks, labels) in dark mode */
+.leaflet-tile-pane{
+  filter:invert(.92) hue-rotate(180deg) brightness(.95) contrast(.88) saturate(.65);
+}
+.leaflet-popup-content-wrapper{
+  background:#161616;color:#fff;border-radius:14px;
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 20px 50px -10px rgba(0,0,0,.7);
+}
+.leaflet-popup-content{margin:14px 16px;min-width:220px}
+.leaflet-popup-tip{background:#161616;border:1px solid rgba(255,255,255,.1)}
+.leaflet-popup-close-button{color:#9a9a9a !important;font-size:20px !important;padding:8px 8px 0 0 !important}
+.leaflet-popup-close-button:hover{color:#fff !important}
+.leaflet-control-zoom a{
+  background:#161616 !important;color:#fff !important;
+  border:1px solid rgba(255,255,255,.1) !important;
+}
+.leaflet-control-zoom a:hover{background:#222 !important;color:var(--accent) !important}
+.leaflet-control-attribution{
+  background:rgba(0,0,0,.6) !important;color:#888 !important;
+  font-size:10px !important;backdrop-filter:blur(8px);
+}
+.leaflet-control-attribution a{color:#aaa !important}
+
+.mp-pin{display:grid;place-items:center;background:transparent !important;border:0 !important}
+.mp-pin-dot{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#FF6A00,#ff4d00);
+  border:3px solid #fff;
+  box-shadow:0 0 0 4px rgba(255,106,0,.25), 0 6px 14px rgba(0,0,0,.5);
+  display:grid;place-items:center;
+  color:#000;font-weight:800;font-family:'Unbounded',sans-serif;font-size:12px;
+  animation:pin-pulse 2.4s ease-in-out infinite;
+  cursor:pointer;
+}
+@keyframes pin-pulse{
+  0%,100%{box-shadow:0 0 0 4px rgba(255,106,0,.25), 0 6px 14px rgba(0,0,0,.5)}
+  50%{box-shadow:0 0 0 12px rgba(255,106,0,.05), 0 6px 14px rgba(0,0,0,.5)}
+}
+.mp-popup-title{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.2}
+.mp-popup-addr{font-size:13px;color:#bcbcbc;margin-bottom:4px}
+.mp-popup-phone{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:12px}
+.mp-popup-actions{display:flex;gap:6px}
+.mp-popup-actions a{
+  flex:1;text-align:center;padding:9px 10px;border-radius:8px;
+  font-size:12px;font-weight:700;text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+}
+.mp-popup-wa{background:#25D366;color:#fff !important}
+.mp-popup-2gis{background:var(--accent);color:#000 !important}
+
+/* ─── Footer ─── */
+footer{
+  background:#050505;
+  border-top:1px solid var(--line);
+  padding:60px 0 30px;
+}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:50px}
+@media (max-width:768px){.footer-grid{grid-template-columns:1fr 1fr;gap:30px}}
+@media (max-width:480px){.footer-grid{grid-template-columns:1fr}}
+
+.footer-col h4{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:18px;color:var(--text)}
+.footer-col p{font-size:14px;color:var(--muted);line-height:1.7}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-col a{font-size:14px;color:var(--muted);transition:color .2s}
+.footer-col a:hover{color:var(--accent)}
+
+.footer-socials{display:flex;gap:10px;margin-top:18px}
+.footer-social{
+  width:40px;height:40px;border-radius:10px;
+  background:rgba(255,255,255,.05);
+  display:grid;place-items:center;
+  transition:background .2s,color .2s;
+  color:var(--muted);
+}
+.footer-social:hover{background:var(--accent);color:#000}
+.footer-social svg{width:18px;height:18px}
+
+.footer-bottom{
+  border-top:1px solid var(--line);
+  padding-top:24px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+  font-size:13px;color:var(--dim);
+}
+
+/* ─── Float WhatsApp ─── */
+.float-wa{
+  position:fixed;bottom:24px;right:24px;z-index:50;
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,#25D366,#128C7E);
+  display:grid;place-items:center;
+  box-shadow:0 12px 30px -6px rgba(37,211,102,.5);
+  transition:transform .3s;
+  animation:pulse 2.5s ease-in-out infinite;
+}
+.float-wa:hover{transform:scale(1.1)}
+.float-wa svg{width:30px;height:30px;color:#fff}
+@keyframes pulse{
+  0%,100%{box-shadow:0 12px 30px -6px rgba(37,211,102,.5),0 0 0 0 rgba(37,211,102,.6)}
+  50%{box-shadow:0 12px 30px -6px rgba(37,211,102,.5),0 0 0 18px rgba(37,211,102,0)}
+}
+.float-wa-badge{
+  position:absolute;top:-4px;right:-4px;
+  background:var(--accent);color:#000;
+  font-size:10px;font-weight:800;
+  padding:3px 6px;border-radius:999px;
+}
+
+/* ─── Animations ─── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+</style>
+</head>
+<body>
+
+<!-- ─── Header ─── -->
+<header class="header" id="header">
+  <div class="container">
+    <nav class="nav">
+      <a href="#" class="logo">
+        <div class="logo-mark">M</div>
+        <div class="logo-text">
+          MPoints<small>Шеф Doner • Burger</small>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <a href="#menu" data-i18n="nav.menu">Меню</a>
+        <a href="#branches" data-i18n="nav.branches">Филиалы</a>
+        <a href="#delivery" data-i18n="nav.delivery">Доставка</a>
+        <a href="#reviews" data-i18n="nav.reviews">Отзывы</a>
+        <a href="#contact" data-i18n="nav.contact">Контакты</a>
+      </div>
+
+      <div class="nav-cta">
+        <div class="lang-switch" id="langSwitch">
+          <button data-lang="kk">KZ</button>
+          <button data-lang="ru" class="active">RU</button>
+          <button data-lang="en">EN</button>
+        </div>
+        <a href="tel:+70000000000" class="btn btn-ghost" aria-label="Позвонить">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span data-i18n="btn.call">Позвонить</span>
+        </a>
+        <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ%20в%20MPoints" class="btn btn-whatsapp" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.195 2.105 3.195 5.1 4.485.714.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345m-5.446 7.443h-.016c-1.77 0-3.524-.48-5.055-1.38l-.36-.214-3.75.975 1.005-3.645-.239-.375a9.869 9.869 0 0 1-1.516-5.26c.002-5.45 4.436-9.884 9.887-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0 0 20.465 3.488"/></svg>
+          WhatsApp
+        </a>
+      </div>
+
+      <button class="burger" id="burger" aria-label="Меню"><span></span></button>
+    </nav>
+  </div>
+</header>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#menu" data-i18n="nav.menu">Меню</a>
+  <a href="#branches" data-i18n="nav.branches">Филиалы</a>
+  <a href="#delivery" data-i18n="nav.delivery">Доставка</a>
+  <a href="#reviews" data-i18n="nav.reviews">Отзывы</a>
+  <a href="#contact" data-i18n="nav.contact">Контакты</a>
+  <a href="https://wa.me/77016798522" target="_blank" rel="noopener" style="color:var(--green)" data-i18n="m.order">WhatsApp заказ</a>
+</div>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-noise"></div>
+
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-content">
+        <div class="hero-rating">
+          <span class="stars">★★★★★</span>
+          <b>4.7</b>
+          <span data-i18n="hero.rating">· 953 отзыва · Шымкент</span>
+        </div>
+
+        <h1 class="display">
+          <span data-i18n="hero.title1">Шеф Doner.</span><br>
+          <span data-i18n="hero.title2">Сочный.</span><br>
+          <span class="accent" data-i18n="hero.title3">Премиум.</span>
+        </h1>
+
+        <p class="lead" data-i18n="hero.lead">
+          Сеть фастфуда нового уровня в Шымкенте. Свежие ингредиенты, авторские рецепты, скорость и качество в каждом заказе. 5 филиалов работают круглосуточно.
+        </p>
+
+        <div class="hero-cta">
+          <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ" target="_blank" rel="noopener" class="btn btn-whatsapp">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.195 2.105 3.195 5.1 4.485.714.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345m-5.446 7.443h-.016c-1.77 0-3.524-.48-5.055-1.38l-.36-.214-3.75.975 1.005-3.645-.239-.375a9.869 9.869 0 0 1-1.516-5.26c.002-5.45 4.436-9.884 9.887-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0 0 20.465 3.488"/></svg>
+            <span data-i18n="btn.order_wa">Заказать на WhatsApp</span>
+          </a>
+          <a href="#menu" class="btn btn-primary">
+            <span data-i18n="btn.view_menu">Посмотреть меню</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#branches" class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span data-i18n="btn.find_branch">Найти филиал</span>
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <b>5</b><span data-i18n="stat.branches">Филиалов</span>
+          </div>
+          <div class="stat">
+            <b>24/7</b><span data-i18n="stat.247">Круглосуточно</span>
+          </div>
+          <div class="stat">
+            <b>30+</b><span data-i18n="stat.donertypes">Видов донера</span>
+          </div>
+          <div class="stat">
+            <b>15</b><span data-i18n="stat.delivery">Мин. доставка</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-card">
+          <img class="hero-card-img" src="https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=900&q=80" alt="MPoints Шеф Donner" loading="eager" />
+        </div>
+        <div class="float-tag tag-1">
+          <div class="float-tag-icon">⚡</div>
+          <div><b data-i18n="tag.fast_b">15 минут</b><span data-i18n="tag.fast_s">средняя доставка</span></div>
+        </div>
+        <div class="float-tag tag-2">
+          <div class="float-tag-icon">🔥</div>
+          <div><b data-i18n="tag.fresh_b">Свежие ингредиенты</b><span data-i18n="tag.fresh_s">каждый день</span></div>
+        </div>
+        <div class="float-tag tag-3">
+          <div class="float-tag-icon">⭐</div>
+          <div><b data-i18n="tag.rating_b">4.7 рейтинг</b><span data-i18n="tag.rating_s">953 отзыва</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Marquee ─── -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span class="marquee-item">🌯 ДОНЕР <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🍔 БУРГЕР <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🍕 ПИЦЦА <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🥩 СТЕЙК <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🍗 ЧИКЕН <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🌭 ХОТ-ДОГ <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🍟 ФРИ <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item">🌯 ДОНЕР <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🍔 БУРГЕР <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🍕 ПИЦЦА <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🥩 СТЕЙК <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🍗 ЧИКЕН <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🌭 ХОТ-ДОГ <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+    <span class="marquee-item">🍟 ФРИ <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg></span>
+  </div>
+</div>
+
+<!-- ─── Menu Section ─── -->
+<section id="menu">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head-left">
+        <span class="eyebrow" data-i18n="menu.eyebrow">Хиты меню</span>
+        <h2 class="section-title"><span data-i18n="menu.title1">Самое</span> <span class="hl" data-i18n="menu.title2">популярное</span></h2>
+        <p class="section-sub" data-i18n="menu.sub">Авторские блюда, которые любят гости. Свежее мясо, фирменные соусы и идеальная скорость подачи.</p>
+      </div>
+      <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20увидеть%20полное%20меню" target="_blank" rel="noopener" class="btn btn-ghost">
+        <span data-i18n="btn.full_menu">Полное меню</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="menu-tabs reveal" id="menuTabs">
+      <button class="menu-tab active" data-cat="all" data-i18n="tab.all">Все</button>
+      <button class="menu-tab" data-cat="doner" data-i18n="tab.doner">Донеры</button>
+      <button class="menu-tab" data-cat="burger" data-i18n="tab.burger">Бургеры</button>
+      <button class="menu-tab" data-cat="pizza" data-i18n="tab.pizza">Пицца</button>
+      <button class="menu-tab" data-cat="chicken" data-i18n="tab.chicken">Чикен</button>
+      <button class="menu-tab" data-cat="shaurma" data-i18n="tab.shaurma">Шаурма</button>
+      <button class="menu-tab" data-cat="sides" data-i18n="tab.sides">Гарниры</button>
+    </div>
+
+    <div class="menu-grid" id="menuGrid">
+      <!-- Cards filled via JS -->
+    </div>
+
+    <div class="menu-cta reveal">
+      <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ" target="_blank" rel="noopener" class="btn btn-whatsapp">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.195 2.105 3.195 5.1 4.485.714.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345m-5.446 7.443h-.016c-1.77 0-3.524-.48-5.055-1.38l-.36-.214-3.75.975 1.005-3.645-.239-.375a9.869 9.869 0 0 1-1.516-5.26c.002-5.45 4.436-9.884 9.887-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0 0 20.465 3.488"/></svg>
+        <span data-i18n="btn.order_full">Оформить заказ через WhatsApp</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Branches ─── -->
+<section id="branches" class="branches">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head-left">
+        <span class="eyebrow" data-i18n="branches.eyebrow">Филиалы</span>
+        <h2 class="section-title"><span class="hl" data-i18n="branches.title1">5 точек</span> <span data-i18n="branches.title2">в Шымкенте</span></h2>
+        <p class="section-sub" data-i18n="branches.sub">Выберите ближайший филиал и закажите за пару кликов. Каждая точка работает круглосуточно.</p>
+      </div>
+    </div>
+
+    <div class="branches-grid">
+
+      <article class="branch-card reveal">
+        <div class="branch-head">
+          <span class="branch-num">№ 01</span>
+          <span class="branch-status" data-i18n="status.open247">Открыто 24/7</span>
+        </div>
+        <h3 class="branch-name">MPoints — 18 м-н, 4/5</h3>
+        <div class="branch-area">Аль-Фарабийский район</div>
+        <div class="branch-info">
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>18-й микрорайон, 4/5, Шымкент</div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span data-i18n="label.247">Круглосуточно</span></div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:+70000000000" style="color:inherit">+7 000 000 00 00</a></div>
+        </div>
+        <div class="branch-actions">
+          <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ%20с%20филиала%2018%20м-н%204/5" target="_blank" rel="noopener" class="btn btn-whatsapp">WhatsApp</a>
+          <a href="https://2gis.kz/shymkent/search/18%20%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D1%80%D0%B0%D0%B9%D0%BE%D0%BD%204%2F5/firm/70000001092875323/69.629286%2C42.340867?m=69.62884%2C42.340552%2F19.32" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="btn.on_map">На карте</a>
+        </div>
+      </article>
+
+      <article class="branch-card reveal">
+        <div class="branch-head">
+          <span class="branch-num">№ 02</span>
+          <span class="branch-status" data-i18n="status.open247">Открыто 24/7</span>
+        </div>
+        <h3 class="branch-name">MPoints — 18 м-н, 48а</h3>
+        <div class="branch-area">Аль-Фарабийский район</div>
+        <div class="branch-info">
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>18-й микрорайон, 48а, Шымкент</div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span data-i18n="label.247">Круглосуточно</span></div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:+70000000000" style="color:inherit">+7 000 000 00 00</a></div>
+        </div>
+        <div class="branch-actions">
+          <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ%20с%20филиала%2018%20м-н%2048а" target="_blank" rel="noopener" class="btn btn-whatsapp">WhatsApp</a>
+          <a href="https://go.2gis.com/QHoTx" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="btn.on_map">На карте</a>
+        </div>
+      </article>
+
+      <article class="branch-card reveal">
+        <div class="branch-head">
+          <span class="branch-num">№ 03</span>
+          <span class="branch-status" data-i18n="status.open247">Открыто 24/7</span>
+        </div>
+        <h3 class="branch-name">MPoints — Иляева, 25/1</h3>
+        <div class="branch-area">Енбекшинский район</div>
+        <div class="branch-info">
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>ул. Иляева, 25/1, Шымкент</div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span data-i18n="label.247">Круглосуточно</span></div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:+70000000000" style="color:inherit">+7 000 000 00 00</a></div>
+        </div>
+        <div class="branch-actions">
+          <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ%20с%20филиала%20Иляева%2025/1" target="_blank" rel="noopener" class="btn btn-whatsapp">WhatsApp</a>
+          <a href="https://go.2gis.com/1p56C" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="btn.on_map">На карте</a>
+        </div>
+      </article>
+
+      <article class="branch-card reveal">
+        <div class="branch-head">
+          <span class="branch-num">№ 04</span>
+          <span class="branch-status" data-i18n="status.open247">Открыто 24/7</span>
+        </div>
+        <h3 class="branch-name">MPoints — Тауке хана, 14</h3>
+        <div class="branch-area">Центр города</div>
+        <div class="branch-info">
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>пр. Тауке хана, 14, Шымкент</div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span data-i18n="label.247">Круглосуточно</span></div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:+70000000000" style="color:inherit">+7 000 000 00 00</a></div>
+        </div>
+        <div class="branch-actions">
+          <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ%20с%20филиала%20Тауке%20хана%2014" target="_blank" rel="noopener" class="btn btn-whatsapp">WhatsApp</a>
+          <a href="https://go.2gis.com/kMupO" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="btn.on_map">На карте</a>
+        </div>
+      </article>
+
+      <article class="branch-card reveal">
+        <div class="branch-head">
+          <span class="branch-num">№ 05</span>
+          <span class="branch-status" data-i18n="status.open247">Открыто 24/7</span>
+        </div>
+        <h3 class="branch-name">MPoints — Бейбитшилик, 4</h3>
+        <div class="branch-area">Аль-Фарабийский район</div>
+        <div class="branch-info">
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>ул. Бейбитшилик, 4, Шымкент</div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span data-i18n="label.247">Круглосуточно</span></div>
+          <div class="branch-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:+70000000000" style="color:inherit">+7 000 000 00 00</a></div>
+        </div>
+        <div class="branch-actions">
+          <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ%20с%20филиала%20Бейбитшилик%204" target="_blank" rel="noopener" class="btn btn-whatsapp">WhatsApp</a>
+          <a href="https://go.2gis.com/IUhzd" target="_blank" rel="noopener" class="btn btn-ghost" data-i18n="btn.on_map">На карте</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── Delivery ─── -->
+<section id="delivery">
+  <div class="container">
+    <div class="delivery-grid">
+      <div class="reveal">
+        <span class="eyebrow" data-i18n="delivery.eyebrow">Доставка</span>
+        <h2 class="section-title"><span data-i18n="delivery.title1">Привезём</span> <span class="hl" data-i18n="delivery.title2">горячим</span> <span data-i18n="delivery.title3">за 15 минут</span></h2>
+        <p class="section-sub" data-i18n="delivery.sub">Собственный курьерский сервис работает по всему Шымкенту. Закажите через WhatsApp — и мы доставим быстро, точно по адресу.</p>
+
+        <div class="delivery-features">
+          <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h4 data-i18n="dl.f1_t">Доставка 15 мин</h4>
+            <p data-i18n="dl.f1_d">Средняя скорость по центру города</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🕐</div>
+            <h4>24/7</h4>
+            <p data-i18n="dl.f2_d">Работаем круглосуточно, без перерывов</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🏙️</div>
+            <h4 data-i18n="dl.f3_t">Весь город</h4>
+            <p data-i18n="dl.f3_d">Все районы Шымкента в зоне доставки</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">💳</div>
+            <h4 data-i18n="dl.f4_t">Любая оплата</h4>
+            <p data-i18n="dl.f4_d">Карта, QR, Kaspi, наличные</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-visual reveal">
+        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=80" alt="Доставка MPoints" loading="lazy" />
+        <div class="delivery-zones">
+          <b data-i18n="dl.zones_t">Зоны доставки</b>
+          <span data-i18n="dl.zones_list">✓ Аль-Фараби · Енбекши<br>✓ Абай · Каратау<br>✓ Турксиб · Центр</span>
+        </div>
+        <div class="delivery-time">
+          <b data-i18n="dl.time_b">15 мин</b>
+          <span data-i18n="dl.time_s">среднее время</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Social ─── -->
+<section>
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head-left">
+        <span class="eyebrow" data-i18n="social.eyebrow">Соцсети</span>
+        <h2 class="section-title"><span data-i18n="social.title1">Мы в</span> <span class="hl" data-i18n="social.title2">Instagram</span> &amp; TikTok</h2>
+        <p class="section-sub" data-i18n="social.sub">Подписывайтесь — публикуем новинки, акции и закулисье кухни. Самое вкусное всегда первыми у наших подписчиков.</p>
+        <div class="social-stats">
+          <div class="social-stat"><b>50K+</b><span data-i18n="soc.s1">Подписчиков Instagram</span></div>
+          <div class="social-stat"><b>1.2M+</b><span data-i18n="soc.s2">Просмотров TikTok</span></div>
+          <div class="social-stat"><b>953</b><span data-i18n="soc.s3">Отзыва 2GIS</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="https://www.instagram.com/mpoints.kz" target="_blank" rel="noopener" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+          Instagram
+        </a>
+        <a href="https://www.tiktok.com/@account_not_found_404_demo_broken" target="_blank" rel="noopener" class="btn btn-ghost">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+          TikTok
+        </a>
+      </div>
+    </div>
+
+    <div class="social-grid reveal">
+      <a href="javascript:void(0)" class="social-card" style="cursor:default">
+        <img src="https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?auto=format&fit=crop&w=500&q=80" alt="Донер" loading="lazy" />
+        <div class="social-card-overlay"><span>Новый донер</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      </a>
+      <a href="javascript:void(0)" class="social-card" style="cursor:default">
+        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80" alt="Бургер" loading="lazy" />
+        <div class="social-card-overlay"><span>Бургер дня</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      </a>
+      <a href="javascript:void(0)" class="social-card" style="cursor:default">
+        <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=500&q=80" alt="Пицца" loading="lazy" />
+        <div class="social-card-overlay"><span>Пицца микс</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      </a>
+      <a href="javascript:void(0)" class="social-card" style="cursor:default">
+        <img src="https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=500&q=80" alt="Чикен" loading="lazy" />
+        <div class="social-card-overlay"><span>Янем чикен</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      </a>
+      <a href="javascript:void(0)" class="social-card" style="cursor:default">
+        <img src="https://images.unsplash.com/photo-1546964124-0cce460f38ef?auto=format&fit=crop&w=500&q=80" alt="Стейк" loading="lazy" />
+        <div class="social-card-overlay"><span>Рибай стейк</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      </a>
+      <a href="javascript:void(0)" class="social-card" style="cursor:default">
+        <img src="https://images.unsplash.com/photo-1633321702518-7feccafb94d5?auto=format&fit=crop&w=500&q=80" alt="Шаурма" loading="lazy" />
+        <div class="social-card-overlay"><span>Шаурма</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Reviews ─── -->
+<section id="reviews" class="branches">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head-left">
+        <span class="eyebrow" data-i18n="reviews.eyebrow">Отзывы</span>
+        <h2 class="section-title"><span data-i18n="reviews.title1">Что говорят</span> <span class="hl" data-i18n="reviews.title2">наши гости</span></h2>
+        <p class="section-sub" data-i18n="reviews.sub">Более 950 реальных отзывов с рейтингом 4.7 — на 2GIS, Google Maps и в Instagram.</p>
+      </div>
+    </div>
+
+    <div class="reviews-marquee reveal">
+      <div class="reviews-row">
+        <div class="reviews-track">
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Самый вкусный донер в Шымкенте! Заказываю минимум 3 раза в неделю, ребята всегда привозят горячее и быстро 🔥»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Айдана К.</b><span>Постоянный гость · 18 мкр</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Заказывали на офис 12 человек — всё привезли вовремя, ничего не перепутали. Менеджер вежливый. Респект! 👏»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Алексей М.</b><span>Корпоратив · Тауке хана 14</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Заказал бургер и картофель по-деревенски — всё свежее. Курьер приехал за 12 минут! Уровень премиум 👌»</p>
+            <div class="review-author"><div class="review-avatar">Е</div><div><b>Ермек Т.</b><span>Заказ через WhatsApp</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Балаларым әрқашан детский бургер мен наггетс сұрайды. Үнемі MPoints алдырамыз. Сапасы тұрақты, рахмет! 💛»</p>
+            <div class="review-author"><div class="review-avatar">Г</div><div><b>Гүлнар Ж.</b><span>Анашы · 18 мкр</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Дети обожают детский бургер. Семьёй ездим каждые выходные на 18 мкр. Качество стабильное всегда 👨‍👩‍👧»</p>
+            <div class="review-author"><div class="review-avatar">М</div><div><b>Мадина С.</b><span>Семейный гость</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«После пар забегаю взять донер beef m — за 1490 нормальная порция. Учусь, экономлю — лучший вариант 💸»</p>
+            <div class="review-author"><div class="review-avatar">Т</div><div><b>Тимур А.</b><span>Студент</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★</div>
+            <p class="review-text">«В целом отлично — еда вкусная, доставка быстрая. Парковки маловато вечером, но это мелочь. Острый донер beef xl 🔥»</p>
+            <div class="review-author"><div class="review-avatar">Н</div><div><b>Нурлан Б.</b><span>18 микрорайон</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Канжан Чикен — это что-то невероятное 🤤 Заказала в первый раз, теперь только его и беру!»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Аружан Қ.</b><span>Тауке хана</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Собрались с пацанами на день рождения — заказали пиццу микс + крылья + колу. Всё топ, всем понравилось 🎉»</p>
+            <div class="review-author"><div class="review-avatar">Ж</div><div><b>Жанибек Е.</b><span>Друзья · Иляева</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Пацаны, мпойнтс топ! Учусь, заказываю поздно — работают 24/7, спасение жизни. Цены норм 💯»</p>
+            <div class="review-author"><div class="review-avatar">Б</div><div><b>Бекжан М.</b><span>Студент</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Самый сочный бургер в городе. Заказываем с коллегами на обед, всегда приезжает горячее и упаковка хорошая 👍»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Айгерим А.</b><span>Постоянный гость</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Қыздар, ұсынамын! Шаурма chicken тамаша, бағасы да қол жетімді. Қазір тұрақты клиентпін 😊»</p>
+            <div class="review-author"><div class="review-avatar">С</div><div><b>Самал Қ.</b><span>18 мкр клиент</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Уже год заказываем в мпойнтс на Бейбитшилик 4 — за это время ни одного плохого заказа. Спасибо команде! ❤️»</p>
+            <div class="review-author"><div class="review-avatar">Ж</div><div><b>Жанар Н.</b><span>Семейный гость</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Реально лучшая шаурма в Шымкенте. Лаваш мягкий, мясо сочное, соусы фирменные 🌯 Рекомендую всем»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Аскар Ж.</b><span>Иляева 25/1</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Заказала в 23:30, привезли в 23:50. Горячее, вкусное, в красивой упаковке. Лучшее место для ночного заказа 🌙»</p>
+            <div class="review-author"><div class="review-avatar">Д</div><div><b>Динара Б.</b><span>18 мкр</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Қазақша жазайын — бірінші рет тапсырыс бердім, тамаша! Янем Чикен super 🔥 Айналаға ұсынып жатырмын»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Әлібі Қ.</b><span>Жаңа клиент</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Кто любит острое — берите халапеньо запеченный beef xl 🌶🔥 это огонь! После него ничего другого не хочется»</p>
+            <div class="review-author"><div class="review-avatar">Р</div><div><b>Руслан И.</b><span>Любитель острого</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★</div>
+            <p class="review-text">«Всё нравится — еда, скорость, упаковка. Хотелось бы больше острых соусов в комплекте 🌶️ А так твёрдая 4!»</p>
+            <div class="review-author"><div class="review-avatar">К</div><div><b>Камилла А.</b><span>18 мкр клиент</span></div></div>
+          </article>
+
+          <!-- duplicate for seamless loop -->
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Самый вкусный донер в Шымкенте! Заказываю минимум 3 раза в неделю, ребята всегда привозят горячее и быстро 🔥»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Айдана К.</b><span>Постоянный гость · 18 мкр</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Заказывали на офис 12 человек — всё привезли вовремя, ничего не перепутали. Менеджер вежливый. Респект! 👏»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Алексей М.</b><span>Корпоратив · Тауке хана 14</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Заказал бургер и картофель по-деревенски — всё свежее. Курьер приехал за 12 минут! Уровень премиум 👌»</p>
+            <div class="review-author"><div class="review-avatar">Е</div><div><b>Ермек Т.</b><span>Заказ через WhatsApp</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Балаларым әрқашан детский бургер мен наггетс сұрайды. Үнемі MPoints алдырамыз. Сапасы тұрақты, рахмет! 💛»</p>
+            <div class="review-author"><div class="review-avatar">Г</div><div><b>Гүлнар Ж.</b><span>Анашы · 18 мкр</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Дети обожают детский бургер. Семьёй ездим каждые выходные на 18 мкр. Качество стабильное всегда 👨‍👩‍👧»</p>
+            <div class="review-author"><div class="review-avatar">М</div><div><b>Мадина С.</b><span>Семейный гость</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«После пар забегаю взять донер beef m — за 1490 нормальная порция. Учусь, экономлю — лучший вариант 💸»</p>
+            <div class="review-author"><div class="review-avatar">Т</div><div><b>Тимур А.</b><span>Студент</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★</div>
+            <p class="review-text">«В целом отлично — еда вкусная, доставка быстрая. Парковки маловато вечером, но это мелочь. Острый донер beef xl 🔥»</p>
+            <div class="review-author"><div class="review-avatar">Н</div><div><b>Нурлан Б.</b><span>18 микрорайон</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Канжан Чикен — это что-то невероятное 🤤 Заказала в первый раз, теперь только его и беру!»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Аружан Қ.</b><span>Тауке хана</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Собрались с пацанами на день рождения — заказали пиццу микс + крылья + колу. Всё топ, всем понравилось 🎉»</p>
+            <div class="review-author"><div class="review-avatar">Ж</div><div><b>Жанибек Е.</b><span>Друзья · Иляева</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Пацаны, мпойнтс топ! Учусь, заказываю поздно — работают 24/7, спасение жизни. Цены норм 💯»</p>
+            <div class="review-author"><div class="review-avatar">Б</div><div><b>Бекжан М.</b><span>Студент</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Самый сочный бургер в городе. Заказываем с коллегами на обед, всегда приезжает горячее и упаковка хорошая 👍»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Айгерим А.</b><span>Постоянный гость</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Қыздар, ұсынамын! Шаурма chicken тамаша, бағасы да қол жетімді. Қазір тұрақты клиентпін 😊»</p>
+            <div class="review-author"><div class="review-avatar">С</div><div><b>Самал Қ.</b><span>18 мкр клиент</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Уже год заказываем в мпойнтс на Бейбитшилик 4 — за это время ни одного плохого заказа. Спасибо команде! ❤️»</p>
+            <div class="review-author"><div class="review-avatar">Ж</div><div><b>Жанар Н.</b><span>Семейный гость</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Реально лучшая шаурма в Шымкенте. Лаваш мягкий, мясо сочное, соусы фирменные 🌯 Рекомендую всем»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Аскар Ж.</b><span>Иляева 25/1</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Заказала в 23:30, привезли в 23:50. Горячее, вкусное, в красивой упаковке. Лучшее место для ночного заказа 🌙»</p>
+            <div class="review-author"><div class="review-avatar">Д</div><div><b>Динара Б.</b><span>18 мкр</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Қазақша жазайын — бірінші рет тапсырыс бердім, тамаша! Янем Чикен super 🔥 Айналаға ұсынып жатырмын»</p>
+            <div class="review-author"><div class="review-avatar">А</div><div><b>Әлібі Қ.</b><span>Жаңа клиент</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">«Кто любит острое — берите халапеньо запеченный beef xl 🌶🔥 это огонь! После него ничего другого не хочется»</p>
+            <div class="review-author"><div class="review-avatar">Р</div><div><b>Руслан И.</b><span>Любитель острого</span></div></div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars">★★★★</div>
+            <p class="review-text">«Всё нравится — еда, скорость, упаковка. Хотелось бы больше острых соусов в комплекте 🌶️ А так твёрдая 4!»</p>
+            <div class="review-author"><div class="review-avatar">К</div><div><b>Камилла А.</b><span>18 мкр клиент</span></div></div>
+          </article>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="reviews-summary reveal">
+      <div class="review-score">4.7</div>
+      <div class="review-score-label">
+        <span class="stars">★★★★★</span>
+        <b data-i18n="reviews.based">На основе 953 отзывов</b>
+        <span>2GIS · Google Maps · Instagram</span>
+      </div>
+      <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ" target="_blank" rel="noopener" class="btn btn-whatsapp" style="margin-left:auto" data-i18n="btn.leave_order">
+        Оставить заказ
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── QR Section ─── -->
+<section>
+  <div class="container">
+    <div class="qr-wrap reveal">
+      <div class="qr-grid">
+        <div>
+          <span class="eyebrow" data-i18n="qr.eyebrow">QR-меню</span>
+          <h2 class="section-title"><span data-i18n="qr.title1">Закажите в</span> <span class="hl" data-i18n="qr.title2">1 клик</span></h2>
+          <p class="section-sub" data-i18n="qr.sub">Отсканируйте QR-код камерой телефона — откроется WhatsApp с готовым шаблоном заказа. Никаких регистраций и приложений.</p>
+
+          <div class="qr-steps">
+            <div class="qr-step">
+              <div class="qr-step-num">1</div>
+              <span data-i18n="qr.step1">Откройте камеру телефона и наведите на QR-код</span>
+            </div>
+            <div class="qr-step">
+              <div class="qr-step-num">2</div>
+              <span data-i18n="qr.step2">Перейдите в WhatsApp по ссылке</span>
+            </div>
+            <div class="qr-step">
+              <div class="qr-step-num">3</div>
+              <span data-i18n="qr.step3">Выберите блюда и отправьте заказ — доставим за 15 минут</span>
+            </div>
+          </div>
+        </div>
+
+        <a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ%20в%20MPoints" target="_blank" rel="noopener" class="qr-card" aria-label="QR код WhatsApp MPoints">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&bgcolor=ffffff&color=000000&qzone=2&data=https%3A%2F%2Fwa.me%2F77008152020%3Ftext%3D%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5%21%2520%D0%A5%D0%BE%D1%87%D1%83%2520%D1%81%D0%B4%D0%B5%D0%BB%D0%B0%D1%82%D1%8C%2520%D0%B7%D0%B0%D0%BA%D0%B0%D0%B7%2520%D0%B2%2520MPoints" alt="QR код WhatsApp MPoints" loading="lazy" />
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Contact ─── -->
+<section id="contact">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head-left">
+        <span class="eyebrow" data-i18n="contact.eyebrow">Контакты</span>
+        <h2 class="section-title"><span data-i18n="contact.title1">Свяжитесь с</span> <span class="hl" data-i18n="contact.title2">нами</span></h2>
+        <p class="section-sub" data-i18n="contact.sub">Закажите по телефону, WhatsApp или приходите в любой из 5 филиалов. Мы работаем круглосуточно.</p>
+      </div>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-list reveal">
+        <a href="https://wa.me/77016798522" target="_blank" rel="noopener" class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.195 2.105 3.195 5.1 4.485.714.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345m-5.446 7.443h-.016c-1.77 0-3.524-.48-5.055-1.38l-.36-.214-3.75.975 1.005-3.645-.239-.375a9.869 9.869 0 0 1-1.516-5.26c.002-5.45 4.436-9.884 9.887-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0 0 20.465 3.488"/></svg>
+          </div>
+          <div class="contact-text">
+            <small data-i18n="contact.wa_s">WhatsApp · Заказ за 1 минуту</small>
+            <b>+7 000 000 00 00</b>
+          </div>
+        </a>
+
+        <a href="tel:+70000000000" class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div class="contact-text">
+            <small data-i18n="contact.phone_s">Телефон</small>
+            <b>+7 000 000 00 00</b>
+          </div>
+        </a>
+
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="contact-text">
+            <small data-i18n="contact.hours_s">Время работы</small>
+            <b data-i18n="contact.hours_b">Круглосуточно · 24/7</b>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="contact-text">
+            <small data-i18n="contact.office_s">Главный офис · 18 м-н, 4/5</small>
+            <b data-i18n="contact.office_b">18-й микрорайон, 4/5, Аль-Фарабийский район, Шымкент</b>
+          </div>
+        </div>
+
+        <a href="https://www.instagram.com/mpoints.kz" target="_blank" rel="noopener" class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+          </div>
+          <div class="contact-text">
+            <small>Instagram</small>
+            <b>@mpoints.kz</b>
+          </div>
+        </a>
+      </div>
+
+      <div class="map-wrap reveal">
+        <div class="map-cta">
+          <div class="map-cta-icon">2ГИС</div>
+          <div class="map-cta-text">
+            <b data-i18n="mapcta.title">Все 5 филиалов на карте</b>
+            <span data-i18n="mapcta.sub">Откройте в 2GIS — увидите все точки</span>
+          </div>
+          <a href="https://2gis.kz/shymkent/search/MPoints" target="_blank" rel="noopener" class="map-cta-btn">
+            <span data-i18n="mapcta.btn">Открыть</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div id="map"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a href="#" class="logo" style="margin-bottom:18px">
+          <div class="logo-mark">M</div>
+          <div class="logo-text">
+            MPoints<small>Шеф Doner • Burger</small>
+          </div>
+        </a>
+        <p data-i18n="footer.about">Сеть премиальных кафе быстрого питания в Шымкенте. Свежие ингредиенты, авторские рецепты, скорость и качество.</p>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/mpoints.kz" target="_blank" rel="noopener" class="footer-social" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+          </a>
+          <a href="https://www.tiktok.com/@account_not_found_404_demo_broken" target="_blank" rel="noopener" class="footer-social" aria-label="TikTok">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+          </a>
+          <a href="https://wa.me/77016798522" target="_blank" rel="noopener" class="footer-social" aria-label="WhatsApp">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.195 2.105 3.195 5.1 4.485.714.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345m-5.446 7.443h-.016c-1.77 0-3.524-.48-5.055-1.38l-.36-.214-3.75.975 1.005-3.645-.239-.375a9.869 9.869 0 0 1-1.516-5.26c.002-5.45 4.436-9.884 9.887-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0 0 20.465 3.488"/></svg>
+          </a>
+          <a href="tel:+70000000000" class="footer-social" aria-label="Телефон">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 data-i18n="footer.menu_h">Меню</h4>
+        <ul>
+          <li><a href="#menu" data-i18n="tab.doner">Донеры</a></li>
+          <li><a href="#menu" data-i18n="tab.burger">Бургеры</a></li>
+          <li><a href="#menu" data-i18n="tab.pizza">Пицца</a></li>
+          <li><a href="#menu" data-i18n="tab.shaurma">Шаурма</a></li>
+          <li><a href="#menu" data-i18n="tab.chicken">Чикен</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 data-i18n="footer.company_h">Компания</h4>
+        <ul>
+          <li><a href="#branches" data-i18n="nav.branches">Филиалы</a></li>
+          <li><a href="#delivery" data-i18n="nav.delivery">Доставка</a></li>
+          <li><a href="#reviews" data-i18n="nav.reviews">Отзывы</a></li>
+          <li><a href="#contact" data-i18n="nav.contact">Контакты</a></li>
+          <li><a href="https://wa.me/77016798522" target="_blank" rel="noopener" data-i18n="footer.order">Заказ</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 data-i18n="footer.contact_h">Контакты</h4>
+        <ul>
+          <li><a href="tel:+70000000000">+7 000 000 00 00</a></li>
+          <li><a href="https://wa.me/77016798522" target="_blank" rel="noopener">WhatsApp</a></li>
+          <li data-i18n="footer.addr">18 м-н, Шымкент</li>
+          <li data-i18n="footer.hours">Круглосуточно 24/7</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span data-i18n="footer.copy">© 2026 MPoints.Kz — Все права защищены</span>
+      <span data-i18n="footer.tag">Шеф Doner · Burger · Pizza · Шымкент</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── Float WhatsApp ─── -->
+<a href="https://wa.me/77016798522?text=Здравствуйте!%20Хочу%20сделать%20заказ" target="_blank" rel="noopener" class="float-wa" aria-label="Заказать через WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.195 2.105 3.195 5.1 4.485.714.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345m-5.446 7.443h-.016c-1.77 0-3.524-.48-5.055-1.38l-.36-.214-3.75.975 1.005-3.645-.239-.375a9.869 9.869 0 0 1-1.516-5.26c.002-5.45 4.436-9.884 9.887-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0 0 20.465 3.488"/></svg>
+  <span class="float-wa-badge">24/7</span>
+</a>
+
+<script>
+/* ─── Menu data ─── */
+const IMG = {
+  doner:    "https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?auto=format&fit=crop&w=600&q=80",
+  doner2:   "https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=600&q=80",
+  doner3:   "https://images.unsplash.com/photo-1633321702518-7feccafb94d5?auto=format&fit=crop&w=600&q=80",
+  burger:   "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
+  burger2:  "https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&w=600&q=80",
+  burger3:  "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80",
+  burger4:  "https://images.unsplash.com/photo-1550317138-10000687a72b?auto=format&fit=crop&w=600&q=80",
+  burger5:  "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=600&q=80",
+  burger6:  "https://images.unsplash.com/photo-1551782450-a2132b4ba21d?auto=format&fit=crop&w=600&q=80",
+  pizza:    "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=600&q=80",
+  pizza2:   "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80",
+  pizza3:   "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80",
+  pizza4:   "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=600&q=80",
+  pizza5:   "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?auto=format&fit=crop&w=600&q=80",
+  pizza6:   "https://images.unsplash.com/photo-1571066811602-716837d681de?auto=format&fit=crop&w=600&q=80",
+  chicken:  "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80",
+  chicken2: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&q=80",
+  chicken3: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80",
+  chicken4: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=600&q=80",
+  steak:    "https://images.unsplash.com/photo-1546964124-0cce460f38ef?auto=format&fit=crop&w=600&q=80",
+  shaurma:  "https://images.unsplash.com/photo-1530469912745-a215c6b256ea?auto=format&fit=crop&w=600&q=80",
+  shaurma2: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=600&q=80",
+  fries:    "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80",
+  fries2:   "https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=600&q=80",
+  rings:    "https://images.unsplash.com/photo-1639667341011-091e6e5fc1ad?auto=format&fit=crop&w=600&q=80",
+  nuggets:  "https://images.unsplash.com/photo-1562967916-eb82221dfb92?auto=format&fit=crop&w=600&q=80",
+  onigirazu:"https://images.unsplash.com/photo-1607301406259-dfb186e15de8?auto=format&fit=crop&w=600&q=80",
+};
+
+const menuData = [
+  {name:"Канжан Чикен", cat:"chicken", catName:"Чикен", price:3600, img:IMG.chicken, badge:"hit"},
+  {name:"Яннем Чикен", cat:"chicken", catName:"Чикен", price:3600, img:IMG.chicken2},
+  {name:"Чикен крылья / 10шт", cat:"chicken", catName:"Чикен", price:2590, img:IMG.chicken4},
+  {name:"Чикен попкорн остро-сладкий", cat:"chicken", catName:"Чикен", price:2690, img:IMG.chicken3, badge:"new"},
+
+  {name:"Стейк из говядины / рибай", cat:"steak", catName:"Стейк", price:5790, img:IMG.steak, badge:"premium"},
+
+  {name:"Фирменный бургер", cat:"burger", catName:"Бургеры", price:2090, img:IMG.burger, badge:"hit"},
+  {name:"Бургер классика", cat:"burger", catName:"Бургеры", price:2090, img:IMG.burger2},
+  {name:"Острый бургер", cat:"burger", catName:"Бургеры", price:2090, img:IMG.burger3},
+  {name:"Куриный бургер", cat:"burger", catName:"Бургеры", price:1990, img:IMG.burger4},
+  {name:"Бургер с грибами", cat:"burger", catName:"Бургеры", price:2390, img:IMG.burger5},
+  {name:"Детский бургер", cat:"burger", catName:"Бургеры", price:1490, img:IMG.burger6},
+
+  {name:"Донер классика BEEF XL", cat:"doner", catName:"Донер", price:1890, img:IMG.doner, badge:"hit"},
+  {name:"Донер классика BEEF L", cat:"doner", catName:"Донер", price:1590, img:IMG.doner2},
+  {name:"Донер классика BEEF M", cat:"doner", catName:"Донер", price:1490, img:IMG.doner3},
+  {name:"Донер классика CHICKEN XL", cat:"doner", catName:"Донер", price:1790, img:IMG.doner},
+  {name:"Донер классика CHICKEN L", cat:"doner", catName:"Донер", price:1490, img:IMG.doner2},
+  {name:"Донер классика CHICKEN M", cat:"doner", catName:"Донер", price:1290, img:IMG.doner3},
+  {name:"Донер острый BEEF XL", cat:"doner", catName:"Донер", price:1890, img:IMG.doner},
+  {name:"Донер запеченный BEEF XL", cat:"doner", catName:"Донер", price:1990, img:IMG.doner2, badge:"new"},
+  {name:"Донер халапеньо BEEF XL", cat:"doner", catName:"Донер", price:1890, img:IMG.doner3},
+
+  {name:"Шаурма BEEF", cat:"shaurma", catName:"Шаурма", price:1390, img:IMG.shaurma},
+  {name:"Шаурма CHICKEN", cat:"shaurma", catName:"Шаурма", price:1290, img:IMG.shaurma2},
+  {name:"Люля-кебаб", cat:"shaurma", catName:"Шаурма", price:1590, img:IMG.shaurma},
+  {name:"Твистер", cat:"shaurma", catName:"Шаурма", price:1390, img:IMG.shaurma2},
+
+  {name:"Пицца микс / 30см", cat:"pizza", catName:"Пицца", price:2990, img:IMG.pizza, badge:"hit"},
+  {name:"Пицца 4 сыра / 30см", cat:"pizza", catName:"Пицца", price:3390, img:IMG.pizza2},
+  {name:"Пицца пепперони / 30см", cat:"pizza", catName:"Пицца", price:2990, img:IMG.pizza3},
+  {name:"Пицца маргарита / 30см", cat:"pizza", catName:"Пицца", price:2790, img:IMG.pizza4},
+  {name:"Пицца куриная / 30см", cat:"pizza", catName:"Пицца", price:2990, img:IMG.pizza5},
+  {name:"Пицца 4 сезона / 30см", cat:"pizza", catName:"Пицца", price:3490, img:IMG.pizza6},
+
+  {name:"Картофель фри", cat:"sides", catName:"Гарниры", price:890, img:IMG.fries},
+  {name:"Картофель по-деревенски", cat:"sides", catName:"Гарниры", price:890, img:IMG.fries2},
+  {name:"Луковые кольца", cat:"sides", catName:"Гарниры", price:990, img:IMG.rings},
+  {name:"Куриные наггетсы", cat:"sides", catName:"Гарниры", price:990, img:IMG.nuggets},
+  {name:"Онигиразу с курицей", cat:"sides", catName:"Онигиразу", price:2390, img:IMG.onigirazu, badge:"new"},
+];
+
+const POPULAR_LIMIT = 12;
+
+function priceFmt(n){return n.toLocaleString('ru-RU')+' ₸'}
+
+function renderMenu(cat){
+  const grid = document.getElementById('menuGrid');
+  let items = cat==='all' ? menuData : menuData.filter(m=>m.cat==='doner');
+  items = items.slice(0, POPULAR_LIMIT);
+
+  grid.innerHTML = items.map(m=>`
+    <article class="product-card">
+      ${m.badge==='hit' ? '<span class="product-badge">ХИТ</span>' : ''}
+      ${m.badge==='new' ? '<span class="product-badge new">NEW</span>' : ''}
+      ${m.badge==='premium' ? '<span class="product-badge">PREMIUM</span>' : ''}
+      <div class="product-img"><img src="${m.img}" alt="${m.name}" loading="lazy" /></div>
+      <div class="product-body">
+        <span class="product-cat">${m.catName}</span>
+        <h3 class="product-name">${m.name}</h3>
+        <div class="product-meta">
+          <span class="product-price">${priceFmt(m.price)}</span>
+          <a href="https://wa.me/77016798522?text=${encodeURIComponent('Здравствуйте! Хочу заказать: '+m.name+' — '+priceFmt(m.price))}" target="_blank" rel="noopener" class="btn-order-mini" aria-label="Заказать ${m.name}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </a>
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+
+renderMenu('all');
+
+/* Tab filter */
+document.querySelectorAll('.menu-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    renderMenu(tab.dataset.cat);
+  });
+});
+
+/* Header scroll */
+const header = document.getElementById('header');
+window.addEventListener('scroll', ()=>{
+  if(window.scrollY > 30) header.classList.add('scrolled');
+  else header.classList.remove('scrolled');
+});
+
+/* Mobile menu */
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', ()=>{
+  burger.classList.toggle('active');
+  mobileMenu.classList.toggle('active');
+  document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+});
+mobileMenu.querySelectorAll('a').forEach(a=>{
+  a.addEventListener('click', ()=>{
+    burger.classList.remove('active');
+    mobileMenu.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+});
+
+/* Scroll reveal */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, {threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* Auto-reveal product cards after render */
+document.querySelectorAll('.product-card').forEach(c=>c.classList.add('visible'));
+</script>
+
+<!-- Leaflet for branches map -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ─── Branches map ─── */
+const branches = [
+  {num:'1', name:'MPoints — 18 м-н, 4/5',    addr:'18-й микрорайон, 4/5, Шымкент', phone:'+7 000 000 00 00', wa:'77008152020', map:'https://2gis.kz/shymkent/search/18%20%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D1%80%D0%B0%D0%B9%D0%BE%D0%BD%204%2F5/firm/70000001092875323/69.629286%2C42.340867?m=69.62884%2C42.340552%2F19.32', lat:42.340867, lng:69.629286},
+  {num:'2', name:'MPoints — 18 м-н, 48а',     addr:'18-й микрорайон, 48а, Шымкент', phone:'+7 000 000 00 00', wa:'77006078080', map:'https://go.2gis.com/QHoTx', lat:42.3398, lng:69.6275},
+  {num:'3', name:'MPoints — Иляева, 25/1',    addr:'ул. Иляева, 25/1, Шымкент',     phone:'+7 000 000 00 00', wa:'77751392020', map:'https://go.2gis.com/1p56C', lat:42.3195, lng:69.6090},
+  {num:'4', name:'MPoints — Тауке хана, 14',  addr:'пр. Тауке хана, 14, Шымкент',   phone:'+7 000 000 00 00', wa:'77056078080', map:'https://go.2gis.com/kMupO', lat:42.3175, lng:69.5950},
+  {num:'5', name:'MPoints — Бейбитшилик, 4',  addr:'ул. Бейбитшилик, 4, Шымкент',   phone:'+7 000 000 00 00', wa:'77768490808', map:'https://go.2gis.com/IUhzd', lat:42.3210, lng:69.5990},
+];
+
+const mapEl = document.getElementById('map');
+if(mapEl && window.L){
+  const map = L.map('map', {scrollWheelZoom:false, zoomControl:true}).setView([42.325, 69.610], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'© OpenStreetMap contributors · MPoints.Kz',
+    subdomains:'abc',
+    maxZoom:19
+  }).addTo(map);
+
+  const markers = [];
+  branches.forEach(b => {
+    const icon = L.divIcon({
+      className:'mp-pin',
+      html:`<div class="mp-pin-dot">${b.num}</div>`,
+      iconSize:[30,30],
+      iconAnchor:[15,15],
+      popupAnchor:[0,-18]
+    });
+
+    const popupHTML = `
+      <div>
+        <div class="mp-popup-title">${b.name}</div>
+        <div class="mp-popup-addr">${b.addr}</div>
+        <div class="mp-popup-phone">${b.phone}</div>
+        <div class="mp-popup-actions">
+          <a class="mp-popup-wa" href="https://wa.me/${b.wa}?text=${encodeURIComponent('Здравствуйте! Хочу сделать заказ с филиала '+b.name)}" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="mp-popup-2gis" href="${b.map}" target="_blank" rel="noopener">2GIS</a>
+        </div>
+      </div>
+    `;
+
+    const marker = L.marker([b.lat, b.lng], {icon}).addTo(map).bindPopup(popupHTML, {maxWidth:280, closeButton:true});
+    markers.push(marker);
+  });
+
+  /* Fit all 5 pins in view with padding */
+  const group = L.featureGroup(markers);
+  map.fitBounds(group.getBounds().pad(0.25));
+}
+
+/* ─────────────────────────────────────────── */
+/* ─── LANGUAGE SWITCHER (KZ / RU / EN) ───── */
+/* ─────────────────────────────────────────── */
+const I18N = {
+  ru: {
+    'nav.menu':'Меню','nav.branches':'Филиалы','nav.delivery':'Доставка','nav.reviews':'Отзывы','nav.contact':'Контакты',
+    'btn.call':'Позвонить','m.order':'WhatsApp заказ',
+    'hero.rating':'· 953 отзыва · Шымкент',
+    'hero.title1':'Шеф Doner.','hero.title2':'Сочный.','hero.title3':'Премиум.',
+    'hero.lead':'Сеть фастфуда нового уровня в Шымкенте. Свежие ингредиенты, авторские рецепты, скорость и качество в каждом заказе. 5 филиалов работают круглосуточно.',
+    'btn.order_wa':'Заказать на WhatsApp','btn.view_menu':'Посмотреть меню','btn.find_branch':'Найти филиал',
+    'stat.branches':'Филиалов','stat.247':'Круглосуточно','stat.donertypes':'Видов донера','stat.delivery':'Мин. доставка',
+    'tag.fast_b':'15 минут','tag.fast_s':'средняя доставка','tag.fresh_b':'Свежие ингредиенты','tag.fresh_s':'каждый день','tag.rating_b':'4.7 рейтинг','tag.rating_s':'953 отзыва',
+    'menu.eyebrow':'Хиты меню','menu.title1':'Самое','menu.title2':'популярное','menu.sub':'Авторские блюда, которые любят гости. Свежее мясо, фирменные соусы и идеальная скорость подачи.',
+    'btn.full_menu':'Полное меню','btn.order_full':'Оформить заказ через WhatsApp',
+    'tab.all':'Все','tab.doner':'Донеры','tab.burger':'Бургеры','tab.pizza':'Пицца','tab.chicken':'Чикен','tab.shaurma':'Шаурма','tab.sides':'Гарниры',
+    'branches.eyebrow':'Филиалы','branches.title1':'5 точек','branches.title2':'в Шымкенте','branches.sub':'Выберите ближайший филиал и закажите за пару кликов. Каждая точка работает круглосуточно.',
+    'status.open247':'Открыто 24/7','label.247':'Круглосуточно','btn.on_map':'На карте',
+    'delivery.eyebrow':'Доставка','delivery.title1':'Привезём','delivery.title2':'горячим','delivery.title3':'за 15 минут','delivery.sub':'Собственный курьерский сервис работает по всему Шымкенту. Закажите через WhatsApp — и мы доставим быстро, точно по адресу.',
+    'dl.f1_t':'Доставка 15 мин','dl.f1_d':'Средняя скорость по центру города','dl.f2_d':'Работаем круглосуточно, без перерывов',
+    'dl.f3_t':'Весь город','dl.f3_d':'Все районы Шымкента в зоне доставки','dl.f4_t':'Любая оплата','dl.f4_d':'Карта, QR, Kaspi, наличные',
+    'dl.zones_t':'Зоны доставки','dl.zones_list':'✓ Аль-Фараби · Енбекши<br>✓ Абай · Каратау<br>✓ Турксиб · Центр',
+    'dl.time_b':'15 мин','dl.time_s':'среднее время',
+    'social.eyebrow':'Соцсети','social.title1':'Мы в','social.title2':'Instagram','social.sub':'Подписывайтесь — публикуем новинки, акции и закулисье кухни. Самое вкусное всегда первыми у наших подписчиков.',
+    'soc.s1':'Подписчиков Instagram','soc.s2':'Просмотров TikTok','soc.s3':'Отзыва 2GIS',
+    'reviews.eyebrow':'Отзывы','reviews.title1':'Что говорят','reviews.title2':'наши гости','reviews.sub':'Более 950 реальных отзывов с рейтингом 4.7 — на 2GIS, Google Maps и в Instagram.',
+    'reviews.based':'На основе 953 отзывов','btn.leave_order':'Оставить заказ',
+    'qr.eyebrow':'QR-меню','qr.title1':'Закажите в','qr.title2':'1 клик','qr.sub':'Отсканируйте QR-код камерой телефона — откроется WhatsApp с готовым шаблоном заказа. Никаких регистраций и приложений.',
+    'qr.step1':'Откройте камеру телефона и наведите на QR-код','qr.step2':'Перейдите в WhatsApp по ссылке','qr.step3':'Выберите блюда и отправьте заказ — доставим за 15 минут',
+    'contact.eyebrow':'Контакты','contact.title1':'Свяжитесь с','contact.title2':'нами','contact.sub':'Закажите по телефону, WhatsApp или приходите в любой из 5 филиалов. Мы работаем круглосуточно.',
+    'contact.wa_s':'WhatsApp · Заказ за 1 минуту','contact.phone_s':'Телефон','contact.hours_s':'Время работы','contact.hours_b':'Круглосуточно · 24/7',
+    'contact.office_s':'Главный офис · 18 м-н, 4/5','contact.office_b':'18-й микрорайон, 4/5, Аль-Фарабийский район, Шымкент',
+    'mapcta.title':'Все 5 филиалов на карте','mapcta.sub':'Откройте в 2GIS — увидите все точки','mapcta.btn':'Открыть',
+    'footer.about':'Сеть премиальных кафе быстрого питания в Шымкенте. Свежие ингредиенты, авторские рецепты, скорость и качество.',
+    'footer.menu_h':'Меню','footer.company_h':'Компания','footer.contact_h':'Контакты',
+    'footer.order':'Заказ','footer.addr':'18 м-н, Шымкент','footer.hours':'Круглосуточно 24/7',
+    'footer.copy':'© 2026 MPoints.Kz — Все права защищены','footer.tag':'Шеф Doner · Burger · Pizza · Шымкент'
+  },
+
+  kk: {
+    'nav.menu':'Мәзір','nav.branches':'Филиалдар','nav.delivery':'Жеткізу','nav.reviews':'Пікірлер','nav.contact':'Байланыс',
+    'btn.call':'Қоңырау шалу','m.order':'WhatsApp тапсырыс',
+    'hero.rating':'· 953 пікір · Шымкент',
+    'hero.title1':'Шеф Doner.','hero.title2':'Шырынды.','hero.title3':'Премиум.',
+    'hero.lead':'Шымкенттегі жаңа деңгейдегі фастфуд желісі. Тұщымды ингредиенттер, авторлық рецепттер, әр тапсырыста жылдамдық пен сапа. 5 филиал тәулік бойы жұмыс істейді.',
+    'btn.order_wa':'WhatsApp-та тапсырыс беру','btn.view_menu':'Мәзірді көру','btn.find_branch':'Филиалды табу',
+    'stat.branches':'Филиал','stat.247':'Тәулік бойы','stat.donertypes':'Донер түрі','stat.delivery':'Минут жеткізу',
+    'tag.fast_b':'15 минут','tag.fast_s':'орташа жеткізу','tag.fresh_b':'Жаңа ингредиенттер','tag.fresh_s':'күн сайын','tag.rating_b':'4.7 рейтинг','tag.rating_s':'953 пікір',
+    'menu.eyebrow':'Мәзір хиттері','menu.title1':'Ең','menu.title2':'танымал','menu.sub':'Қонақтар сүйетін авторлық тағамдар. Жаңа ет, фирмалық соустар және мінсіз қызмет жылдамдығы.',
+    'btn.full_menu':'Толық мәзір','btn.order_full':'WhatsApp арқылы тапсырыс беру',
+    'tab.all':'Барлығы','tab.doner':'Донер','tab.burger':'Бургер','tab.pizza':'Пицца','tab.chicken':'Чикен','tab.shaurma':'Шаурма','tab.sides':'Гарнирлер',
+    'branches.eyebrow':'Филиалдар','branches.title1':'5 нүкте','branches.title2':'Шымкентте','branches.sub':'Ең жақын филиалды таңдап, бірнеше кликпен тапсырыс беріңіз. Әр нүкте тәулік бойы жұмыс істейді.',
+    'status.open247':'Ашық 24/7','label.247':'Тәулік бойы','btn.on_map':'Картада',
+    'delivery.eyebrow':'Жеткізу','delivery.title1':'Жеткіземіз','delivery.title2':'ыстық','delivery.title3':'15 минутта','delivery.sub':'Меншікті курьерлік қызмет бүкіл Шымкент бойынша жұмыс істейді. WhatsApp арқылы тапсырыс беріңіз — тез әрі дәл мекенжайға жеткіземіз.',
+    'dl.f1_t':'15 мин жеткізу','dl.f1_d':'Қала орталығы бойынша орташа жылдамдық','dl.f2_d':'Тәулік бойы үзіліссіз жұмыс істейміз',
+    'dl.f3_t':'Бүкіл қала','dl.f3_d':'Шымкенттің барлық аудандары жеткізу аймағында','dl.f4_t':'Кез келген төлем','dl.f4_d':'Карта, QR, Kaspi, қолма-қол',
+    'dl.zones_t':'Жеткізу аймақтары','dl.zones_list':'✓ Әл-Фараби · Еңбекші<br>✓ Абай · Қаратау<br>✓ Турксиб · Орталық',
+    'dl.time_b':'15 мин','dl.time_s':'орташа уақыт',
+    'social.eyebrow':'Әлеуметтік желілер','social.title1':'Бізді','social.title2':'Instagram','social.sub':'Жазылыңыз — жаңалықтар, акциялар және ас үйдің сахна артын жариялаймыз. Ең дәмдісі әрқашан жазылушыларымызда бірінші.',
+    'soc.s1':'Instagram жазылушы','soc.s2':'TikTok қарау','soc.s3':'2GIS пікірі',
+    'reviews.eyebrow':'Пікірлер','reviews.title1':'Біздің қонақтар','reviews.title2':'не айтады','reviews.sub':'4.7 рейтингпен 950-ден астам нақты пікір — 2GIS, Google Maps және Instagram-да.',
+    'reviews.based':'953 пікір негізінде','btn.leave_order':'Тапсырыс беру',
+    'qr.eyebrow':'QR-мәзір','qr.title1':'1 клик','qr.title2':'арқылы тапсырыс беріңіз','qr.sub':'Телефон камерасымен QR-кодты сканерлеңіз — WhatsApp дайын тапсырыс үлгісімен ашылады. Тіркеу мен қосымшалар қажет емес.',
+    'qr.step1':'Телефон камерасын ашып, QR-кодқа бағыттаңыз','qr.step2':'Сілтеме арқылы WhatsApp-қа өтіңіз','qr.step3':'Тағамдарды таңдап, тапсырыс жіберіңіз — 15 минутта жеткіземіз',
+    'contact.eyebrow':'Байланыс','contact.title1':'Бізбен','contact.title2':'байланысыңыз','contact.sub':'Телефон, WhatsApp арқылы тапсырыс беріңіз немесе 5 филиалдың кез келгеніне келіңіз. Біз тәулік бойы жұмыс істейміз.',
+    'contact.wa_s':'WhatsApp · 1 минутта тапсырыс','contact.phone_s':'Телефон','contact.hours_s':'Жұмыс уақыты','contact.hours_b':'Тәулік бойы · 24/7',
+    'contact.office_s':'Бас офис · 18 ы/а, 4/5','contact.office_b':'18-ыкы шағынауданы, 4/5, Әл-Фараби ауданы, Шымкент',
+    'mapcta.title':'Картада барлық 5 филиал','mapcta.sub':'2GIS-те ашыңыз — барлық нүктені көресіз','mapcta.btn':'Ашу',
+    'footer.about':'Шымкенттегі премиум фастфуд кафе желісі. Жаңа ингредиенттер, авторлық рецепттер, жылдамдық пен сапа.',
+    'footer.menu_h':'Мәзір','footer.company_h':'Компания','footer.contact_h':'Байланыс',
+    'footer.order':'Тапсырыс','footer.addr':'18 ы/а, Шымкент','footer.hours':'Тәулік бойы 24/7',
+    'footer.copy':'© 2026 MPoints.Kz — Барлық құқық қорғалған','footer.tag':'Шеф Doner · Burger · Pizza · Шымкент'
+  },
+
+  en: {
+    'nav.menu':'Menu','nav.branches':'Branches','nav.delivery':'Delivery','nav.reviews':'Reviews','nav.contact':'Contact',
+    'btn.call':'Call','m.order':'WhatsApp Order',
+    'hero.rating':'· 953 reviews · Shymkent',
+    'hero.title1':'Chef Doner.','hero.title2':'Juicy.','hero.title3':'Premium.',
+    'hero.lead':'Next-level fast food network in Shymkent. Fresh ingredients, signature recipes, speed and quality in every order. 5 branches open 24/7.',
+    'btn.order_wa':'Order on WhatsApp','btn.view_menu':'View Menu','btn.find_branch':'Find Branch',
+    'stat.branches':'Branches','stat.247':'24/7 Open','stat.donertypes':'Doner types','stat.delivery':'Min. delivery',
+    'tag.fast_b':'15 minutes','tag.fast_s':'average delivery','tag.fresh_b':'Fresh ingredients','tag.fresh_s':'every day','tag.rating_b':'4.7 rating','tag.rating_s':'953 reviews',
+    'menu.eyebrow':'Menu hits','menu.title1':'Most','menu.title2':'popular','menu.sub':'Signature dishes loved by our guests. Fresh meat, signature sauces and perfect serving speed.',
+    'btn.full_menu':'Full menu','btn.order_full':'Order via WhatsApp',
+    'tab.all':'All','tab.doner':'Doner','tab.burger':'Burgers','tab.pizza':'Pizza','tab.chicken':'Chicken','tab.shaurma':'Shawarma','tab.sides':'Sides',
+    'branches.eyebrow':'Branches','branches.title1':'5 locations','branches.title2':'in Shymkent','branches.sub':'Choose the nearest branch and order in a few clicks. Each location is open 24/7.',
+    'status.open247':'Open 24/7','label.247':'24/7','btn.on_map':'On map',
+    'delivery.eyebrow':'Delivery','delivery.title1':'We deliver','delivery.title2':'hot','delivery.title3':'in 15 minutes','delivery.sub':'Our own courier service operates throughout Shymkent. Order via WhatsApp — and we deliver fast, exactly to your address.',
+    'dl.f1_t':'15 min delivery','dl.f1_d':'Average speed in the city center','dl.f2_d':'We work 24/7, no breaks',
+    'dl.f3_t':'Entire city','dl.f3_d':'All districts of Shymkent in delivery zone','dl.f4_t':'Any payment','dl.f4_d':'Card, QR, Kaspi, cash',
+    'dl.zones_t':'Delivery zones','dl.zones_list':'✓ Al-Farabi · Yenbekshi<br>✓ Abay · Karatau<br>✓ Turksib · Center',
+    'dl.time_b':'15 min','dl.time_s':'average time',
+    'social.eyebrow':'Social media','social.title1':'We are on','social.title2':'Instagram','social.sub':'Subscribe — we post novelties, promotions and kitchen behind the scenes. Our subscribers get the tastiest news first.',
+    'soc.s1':'Instagram followers','soc.s2':'TikTok views','soc.s3':'2GIS reviews',
+    'reviews.eyebrow':'Reviews','reviews.title1':'What','reviews.title2':'our guests say','reviews.sub':'Over 950 real reviews with a 4.7 rating — on 2GIS, Google Maps and Instagram.',
+    'reviews.based':'Based on 953 reviews','btn.leave_order':'Place order',
+    'qr.eyebrow':'QR-menu','qr.title1':'Order in','qr.title2':'1 click','qr.sub':'Scan the QR code with your phone camera — WhatsApp will open with a ready order template. No registrations or apps required.',
+    'qr.step1':'Open your phone camera and point at the QR code','qr.step2':'Follow the link to WhatsApp','qr.step3':'Choose dishes and send order — we deliver in 15 minutes',
+    'contact.eyebrow':'Contact','contact.title1':'Get in','contact.title2':'touch','contact.sub':'Order by phone, WhatsApp or visit any of our 5 branches. We work 24/7.',
+    'contact.wa_s':'WhatsApp · Order in 1 minute','contact.phone_s':'Phone','contact.hours_s':'Working hours','contact.hours_b':'24/7 Open',
+    'contact.office_s':'Main office · 18 m-district, 4/5','contact.office_b':'18th microdistrict, 4/5, Al-Farabi district, Shymkent',
+    'mapcta.title':'All 5 branches on map','mapcta.sub':'Open in 2GIS — see all locations','mapcta.btn':'Open',
+    'footer.about':'Premium fast food cafe network in Shymkent. Fresh ingredients, signature recipes, speed and quality.',
+    'footer.menu_h':'Menu','footer.company_h':'Company','footer.contact_h':'Contact',
+    'footer.order':'Order','footer.addr':'18 m-district, Shymkent','footer.hours':'24/7 Open',
+    'footer.copy':'© 2026 MPoints.Kz — All rights reserved','footer.tag':'Chef Doner · Burger · Pizza · Shymkent'
+  }
+};
+
+function applyLang(lang){
+  if(!I18N[lang]) lang = 'ru';
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const val = I18N[lang][key];
+    if(val !== undefined){
+      if(val.includes('<')) el.innerHTML = val;
+      else el.textContent = val;
+    }
+  });
+  document.querySelectorAll('#langSwitch button').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  try{ localStorage.setItem('mp_lang', lang); }catch(e){}
+}
+
+document.querySelectorAll('#langSwitch button').forEach(btn => {
+  btn.addEventListener('click', () => applyLang(btn.dataset.lang));
+});
+
+/* Load saved language or detect browser language */
+let initLang = 'ru';
+try{
+  const saved = localStorage.getItem('mp_lang');
+  if(saved && I18N[saved]) initLang = saved;
+  else {
+    const browserLang = (navigator.language || '').toLowerCase().slice(0,2);
+    if(browserLang === 'kk' || browserLang === 'kz') initLang = 'kk';
+    else if(browserLang === 'en') initLang = 'en';
+  }
+}catch(e){}
+applyLang(initLang);
+</script>
+
+</body>
+</html>
