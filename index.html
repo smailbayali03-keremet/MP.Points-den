@@ -466,6 +466,52 @@ section{padding:120px 0;position:relative}
 .btn-order-mini:hover{background:var(--accent-2);transform:rotate(45deg)}
 .btn-order-mini svg{width:16px;height:16px}
 
+/* Cart себет */
+.qty-ctrl{display:inline-flex;align-items:center;gap:8px}
+.qty-btn{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--accent);color:#000;
+  display:grid;place-items:center;
+  font-size:24px;font-weight:600;line-height:1;
+  cursor:pointer;border:none;
+  transition:background .2s,transform .15s;
+}
+.qty-btn:hover{background:var(--accent-2)}
+.qty-btn:active{transform:scale(.88)}
+.qty-num{min-width:20px;text-align:center;font-weight:800;font-size:17px;color:var(--text);font-family:'Unbounded',sans-serif}
+.qty-ctrl:not(.active) [data-minus],
+.qty-ctrl:not(.active) .qty-num{display:none}
+.product-img{cursor:pointer}
+.product-card.in-cart{border-color:rgba(255,106,0,.55);box-shadow:0 0 0 2px rgba(255,106,0,.25),0 20px 50px -20px rgba(0,0,0,.5)}
+
+/* OK floating */
+.cart-ok{
+  position:fixed;bottom:26px;left:50%;
+  transform:translateX(-50%) translateY(130px);
+  z-index:60;
+  display:flex;align-items:center;gap:12px;
+  background:var(--accent);color:#000;
+  padding:16px 30px;border-radius:999px;
+  font-family:'Unbounded',sans-serif;font-weight:800;font-size:17px;
+  cursor:pointer;border:none;
+  box-shadow:0 16px 44px -8px var(--accent-glow);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .2s;
+  opacity:0;pointer-events:none;
+}
+.cart-ok.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+.cart-ok:hover{background:var(--accent-2)}
+.cart-ok svg{width:20px;height:20px}
+.cart-ok-count{
+  background:#000;color:var(--accent);
+  min-width:26px;height:26px;border-radius:999px;padding:0 7px;
+  display:grid;place-items:center;font-size:14px;
+}
+.cart-ok-total{font-size:15px;opacity:.85;font-weight:700}
+@media (max-width:768px){
+  .cart-ok{bottom:18px;padding:14px 24px;font-size:16px;gap:10px}
+  .cart-ok-total{font-size:14px}
+}
+
 .menu-cta{text-align:center;margin-top:50px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
 /* ─── Branches ─── */
@@ -1860,6 +1906,13 @@ footer{
   <span class="float-wa-badge">24/7</span>
 </a>
 
+<button id="cartOk" class="cart-ok" aria-label="ОК">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  ОК
+  <span class="cart-ok-count">0</span>
+  <span class="cart-ok-total"></span>
+</button>
+
 <script>
 /* ─── Menu data ─── */
 const IMG = {
@@ -1940,32 +1993,88 @@ const POPULAR_LIMIT = 12;
 
 function priceFmt(n){return n.toLocaleString('ru-RU')+' ₸'}
 
+/* Cart */
+const WA_NUMBER = '77016798522';
+const itemMap = {};
+menuData.forEach(m => { itemMap[m.name] = m; });
+const cart = {};
+
 function renderMenu(cat){
   const grid = document.getElementById('menuGrid');
   let items = cat==='all' ? menuData : menuData.filter(m=>m.cat==='doner');
   items = items.slice(0, POPULAR_LIMIT);
 
-  grid.innerHTML = items.map(m=>`
-    <article class="product-card">
+  grid.innerHTML = items.map(m=>{
+    const qty = cart[m.name] || 0;
+    return `
+    <article class="product-card ${qty>0?'in-cart':''}" data-card="${m.name}">
       ${m.badge==='hit' ? '<span class="product-badge">ХИТ</span>' : ''}
       ${m.badge==='new' ? '<span class="product-badge new">NEW</span>' : ''}
       ${m.badge==='premium' ? '<span class="product-badge">PREMIUM</span>' : ''}
-      <div class="product-img"><img src="${m.img}" alt="${m.name}" loading="lazy" /></div>
+      <div class="product-img" data-add="${m.name}"><img src="${m.img}" alt="${m.name}" loading="lazy" /></div>
       <div class="product-body">
         <span class="product-cat">${m.catName}</span>
         <h3 class="product-name">${m.name}</h3>
         <div class="product-meta">
           <span class="product-price">${priceFmt(m.price)}</span>
-          <a href="https://wa.me/77016798522?text=${encodeURIComponent('Здравствуйте! Хочу заказать: '+m.name+' — '+priceFmt(m.price))}" target="_blank" rel="noopener" class="btn-order-mini" aria-label="Заказать ${m.name}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </a>
+          <div class="qty-ctrl ${qty>0?'active':''}" data-ctrl="${m.name}">
+            <button class="qty-btn" data-minus="${m.name}" aria-label="−">−</button>
+            <span class="qty-num">${qty}</span>
+            <button class="qty-btn" data-add="${m.name}" aria-label="+">+</button>
+          </div>
         </div>
       </div>
-    </article>
-  `).join('');
+    </article>`;
+  }).join('');
+}
+
+function cartAdd(name){ cart[name]=(cart[name]||0)+1; syncCart(); }
+function cartRemove(name){ if(cart[name]){cart[name]--; if(cart[name]<=0) delete cart[name];} syncCart(); }
+
+function syncCart(){
+  document.querySelectorAll('[data-ctrl]').forEach(ctrl=>{
+    const name=ctrl.dataset.ctrl, qty=cart[name]||0;
+    ctrl.classList.toggle('active', qty>0);
+    const num=ctrl.querySelector('.qty-num'); if(num) num.textContent=qty;
+  });
+  document.querySelectorAll('[data-card]').forEach(card=>{
+    card.classList.toggle('in-cart', (cart[card.dataset.card]||0)>0);
+  });
+  let count=0, total=0;
+  for(const n in cart){ count+=cart[n]; total+=cart[n]*(itemMap[n]?.price||0); }
+  const ok=document.getElementById('cartOk');
+  if(ok){
+    if(count>0){
+      ok.classList.add('show');
+      ok.querySelector('.cart-ok-count').textContent=count;
+      ok.querySelector('.cart-ok-total').textContent=priceFmt(total);
+    } else ok.classList.remove('show');
+  }
 }
 
 renderMenu('all');
+
+document.getElementById('menuGrid').addEventListener('click', e=>{
+  const minus=e.target.closest('[data-minus]');
+  if(minus){ cartRemove(minus.dataset.minus); return; }
+  const add=e.target.closest('[data-add]');
+  if(add){ cartAdd(add.dataset.add); return; }
+});
+
+const cartOkBtn = document.getElementById('cartOk');
+if(cartOkBtn){
+  cartOkBtn.addEventListener('click', ()=>{
+    if(Object.keys(cart).length===0) return;
+    let msg='Здравствуйте! Хочу заказать:\n';
+    let total=0;
+    for(const n in cart){
+      const m=itemMap[n]; const sum=cart[n]*m.price; total+=sum;
+      msg+=`• ${n} × ${cart[n]} — ${priceFmt(sum)}\n`;
+    }
+    msg+=`──────────\nИтого: ${priceFmt(total)}`;
+    window.open('https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
+  });
+}
 
 /* Tab filter */
 document.querySelectorAll('.menu-tab').forEach(tab=>{
